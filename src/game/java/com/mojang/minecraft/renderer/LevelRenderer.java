@@ -179,6 +179,111 @@ public final class LevelRenderer {
 		GL11.glEndList();
 		this.setDirty(0, 0, 0, this.level.width, this.level.depth, this.level.height);
 	}
+	
+	public final void renderSurroundingGround() {
+		LevelRenderer var9 = this;
+		GL11.glEnable(GL11.GL_TEXTURE_2D);
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, this.textures.loadTexture("/rock.png"));
+		float var10 = 0.5F;
+		GL11.glColor4f(var10, var10, var10, 1.0F);
+		Tesselator var11 = Tesselator.instance;
+		float var4 = this.level.getGroundLevel();
+		int var5 = 128;
+		if(128 > this.level.width) {
+			var5 = this.level.width;
+		}
+
+		if(var5 > this.level.height) {
+			var5 = this.level.height;
+		}
+
+		int var6 = 2048 / var5;
+		var11.begin();
+
+		int var7;
+		for(var7 = -var5 * var6; var7 < var9.level.width + var5 * var6; var7 += var5) {
+			for(int var8 = -var5 * var6; var8 < var9.level.height + var5 * var6; var8 += var5) {
+				var10 = var4;
+				if(var7 >= 0 && var8 >= 0 && var7 < var9.level.width && var8 < var9.level.height) {
+					var10 = 0.0F;
+				}
+
+				var11.vertexUV((float)var7, var10, (float)(var8 + var5), 0.0F, (float)var5);
+				var11.vertexUV((float)(var7 + var5), var10, (float)(var8 + var5), (float)var5, (float)var5);
+				var11.vertexUV((float)(var7 + var5), var10, (float)var8, (float)var5, 0.0F);
+				var11.vertexUV((float)var7, var10, (float)var8, 0.0F, 0.0F);
+			}
+		}
+
+		var11.end();
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, var9.textures.loadTexture("/rock.png"));
+		GL11.glColor3f(0.8F, 0.8F, 0.8F);
+		var11.begin();
+
+		for(var7 = 0; var7 < var9.level.width; var7 += var5) {
+			var11.vertexUV((float)var7, 0.0F, 0.0F, 0.0F, 0.0F);
+			var11.vertexUV((float)(var7 + var5), 0.0F, 0.0F, (float)var5, 0.0F);
+			var11.vertexUV((float)(var7 + var5), var4, 0.0F, (float)var5, var4);
+			var11.vertexUV((float)var7, var4, 0.0F, 0.0F, var4);
+			var11.vertexUV((float)var7, var4, (float)var9.level.height, 0.0F, var4);
+			var11.vertexUV((float)(var7 + var5), var4, (float)var9.level.height, (float)var5, var4);
+			var11.vertexUV((float)(var7 + var5), 0.0F, (float)var9.level.height, (float)var5, 0.0F);
+			var11.vertexUV((float)var7, 0.0F, (float)var9.level.height, 0.0F, 0.0F);
+		}
+
+		GL11.glColor3f(0.6F, 0.6F, 0.6F);
+
+		for(var7 = 0; var7 < var9.level.height; var7 += var5) {
+			var11.vertexUV(0.0F, var4, (float)var7, 0.0F, 0.0F);
+			var11.vertexUV(0.0F, var4, (float)(var7 + var5), (float)var5, 0.0F);
+			var11.vertexUV(0.0F, 0.0F, (float)(var7 + var5), (float)var5, var4);
+			var11.vertexUV(0.0F, 0.0F, (float)var7, 0.0F, var4);
+			var11.vertexUV((float)var9.level.width, 0.0F, (float)var7, 0.0F, var4);
+			var11.vertexUV((float)var9.level.width, 0.0F, (float)(var7 + var5), (float)var5, var4);
+			var11.vertexUV((float)var9.level.width, var4, (float)(var7 + var5), (float)var5, 0.0F);
+			var11.vertexUV((float)var9.level.width, var4, (float)var7, 0.0F, 0.0F);
+		}
+
+		var11.end();
+		
+		var9 = this;
+		GL11.glEnable(GL11.GL_TEXTURE_2D);
+		GL11.glColor3f(1.0F, 1.0F, 1.0F);
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, this.textures.loadTexture("/water.png"));
+		var10 = this.level.getWaterLevel();
+		GL11.glEnable(GL11.GL_BLEND);
+		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+		var11 = Tesselator.instance;
+		int var12 = 128;
+		if(128 > this.level.width) {
+			var12 = this.level.width;
+		}
+
+		if(var12 > this.level.height) {
+			var12 = this.level.height;
+		}
+
+		var5 = 2048 / var12;
+		var11.begin();
+
+		for(var6 = -var12 * var5; var6 < var9.level.width + var12 * var5; var6 += var12) {
+			for(var7 = -var12 * var5; var7 < var9.level.height + var12 * var5; var7 += var12) {
+				float var13 = var10 - 0.1F;
+				if(var6 < 0 || var7 < 0 || var6 >= var9.level.width || var7 >= var9.level.height) {
+					var11.vertexUV((float)var6, var13, (float)(var7 + var12), 0.0F, (float)var12);
+					var11.vertexUV((float)(var6 + var12), var13, (float)(var7 + var12), (float)var12, (float)var12);
+					var11.vertexUV((float)(var6 + var12), var13, (float)var7, (float)var12, 0.0F);
+					var11.vertexUV((float)var6, var13, (float)var7, 0.0F, 0.0F);
+					var11.vertexUV((float)var6, var13, (float)var7, 0.0F, 0.0F);
+					var11.vertexUV((float)(var6 + var12), var13, (float)var7, (float)var12, 0.0F);
+					var11.vertexUV((float)(var6 + var12), var13, (float)(var7 + var12), (float)var12, (float)var12);
+					var11.vertexUV((float)var6, var13, (float)(var7 + var12), 0.0F, (float)var12);
+				}
+			}
+		}
+
+		var11.end();
+	}
 
 	public final int render(Player var1, int var2) {
 		float var3 = var1.x - this.lX;

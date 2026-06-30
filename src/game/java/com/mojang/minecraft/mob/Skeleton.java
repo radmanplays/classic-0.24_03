@@ -11,5 +11,6 @@ public class Skeleton extends Zombie {
 		super(var1, var2, var3, var4);
 		this.model = this.humanoidModel = skeletonModel;
 		this.textureName = "/mob/skeleton.png";
+		allowAlpha = true;
 	}
 }

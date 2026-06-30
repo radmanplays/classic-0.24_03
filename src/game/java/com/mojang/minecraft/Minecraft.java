@@ -537,12 +537,12 @@ public final class Minecraft implements Runnable {
 									var79.toggleLight(false);
 									var79.setupFog();
 									var64.render(var5, var83);
-//									var59.renderSurroundingGround();
+									var59.renderSurroundingGround();
 //									GL11.glDisable(GL11.GL_LIGHTING);
 									var79.setupFog();
 									var59.renderClouds(var83);
 									var79.setupFog();
-									GL11.glEnable(GL11.GL_LIGHTING);
+//									GL11.glEnable(GL11.GL_LIGHTING);
 									if(var79.minecraft.hitResult != null) {
 //										GL11.glDisable(GL11.GL_LIGHTING);
 										GL11.glDisable(GL11.GL_ALPHA_TEST);
@@ -564,7 +564,7 @@ public final class Minecraft implements Runnable {
 
 									GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 									var79.setupFog();
-//									var6.renderSurroundingGround();
+//									var59.renderSurroundingGround();
 									GL11.glEnable(GL11.GL_BLEND);
 //									GL11.glColorMask(false, false, false, false);
 									var53 = var59.render(var5, 1);
@@ -589,7 +589,7 @@ public final class Minecraft implements Runnable {
 
 									GL11.glDepthMask(true);
 									GL11.glDisable(GL11.GL_BLEND);
-									GL11.glDisable(GL11.GL_LIGHTING);
+//									GL11.glDisable(GL11.GL_LIGHTING);
 									GL11.glDisable(GL11.GL_FOG);
 									GL11.glDisable(GL11.GL_TEXTURE_2D);
 									GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);

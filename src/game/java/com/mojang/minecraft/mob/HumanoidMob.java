@@ -22,6 +22,8 @@ public class HumanoidMob extends Mob {
 		this.model.render(var2, var4, (float)this.tickCount + var3, var5, var6, var7);
 		GL11.glEnable(GL11.GL_ALPHA_TEST);
 		if(this.allowAlpha) {
+			GL11.glEnable(GL11.GL_ALPHA_TEST);
+			GL11.glAlphaFunc(GL11.GL_GREATER, 0.1f);
 			GL11.glEnable(GL11.GL_CULL_FACE);
 		}
 
