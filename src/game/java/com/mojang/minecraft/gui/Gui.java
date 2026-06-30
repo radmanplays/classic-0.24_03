@@ -162,8 +162,8 @@ public final class Gui extends GuiComponent {
 		var14 = this.scaledWidth / 2;
 		var15 = this.scaledHeight / 2;
 		this.hoveredUsername = null;
-		if(Keyboard.isKeyDown(Keyboard.KEY_TAB) && this.minecraft.networkClient != null && this.minecraft.networkClient.isConnected()) {
-			List var22 = this.minecraft.networkClient.getUsernames();
+		if(Keyboard.isKeyDown(Keyboard.KEY_TAB) && false) {
+//			List var22 = this.minecraft.networkClient.getUsernames();
 			GL11.glEnable(GL11.GL_BLEND);
 			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 			GL11.glBegin(GL11.GL_QUADS);
@@ -178,16 +178,16 @@ public final class Gui extends GuiComponent {
 			var21 = "Connected players:";
 			var5.drawShadow(var21, var14 - var5.width(var21) / 2, var15 - 64 - 12, 16777215);
 
-			for(var11 = 0; var11 < var22.size(); ++var11) {
-				int var27 = var14 + var11 % 2 * 120 - 120;
-				int var17 = var15 - 64 + (var11 / 2 << 3);
-				if(var2 && var3 >= var27 && var4 >= var17 && var3 < var27 + 120 && var4 < var17 + 8) {
-					this.hoveredUsername = (String)var22.get(var11);
-					var5.draw((String)var22.get(var11), var27 + 2, var17, 16777215);
-				} else {
-					var5.draw((String)var22.get(var11), var27, var17, 15658734);
-				}
-			}
+//			for(var11 = 0; var11 < var22.size(); ++var11) {
+//				int var27 = var14 + var11 % 2 * 120 - 120;
+//				int var17 = var15 - 64 + (var11 / 2 << 3);
+//				if(var2 && var3 >= var27 && var4 >= var17 && var3 < var27 + 120 && var4 < var17 + 8) {
+//					this.hoveredUsername = (String)var22.get(var11);
+//					var5.draw((String)var22.get(var11), var27 + 2, var17, 16777215);
+//				} else {
+//					var5.draw((String)var22.get(var11), var27, var17, 15658734);
+//				}
+//			}
 		}
 
 	}

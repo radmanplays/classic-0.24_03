@@ -20,9 +20,6 @@ import com.mojang.minecraft.level.levelgen.LevelGen;
 import com.mojang.minecraft.level.liquid.Liquid;
 import com.mojang.minecraft.level.tile.Tile;
 import com.mojang.minecraft.model.HumanoidModel;
-import com.mojang.minecraft.net.Client;
-import com.mojang.minecraft.net.NetworkPlayer;
-import com.mojang.minecraft.net.Packet;
 import com.mojang.minecraft.particle.ParticleEngine;
 import com.mojang.minecraft.phys.AABB;
 import com.mojang.minecraft.player.Inventory;
@@ -89,7 +86,6 @@ public final class Minecraft implements Runnable {
 	public int loadMapId = 0;
 	public Gui gui;
 	public boolean hideScreen = false;
-	public Client networkClient;
 	public HitResult hitResult;
 	public Options options;
 	String server;
@@ -157,7 +153,7 @@ public final class Minecraft implements Runnable {
 
 		Minecraft var5 = this;
 		try {
-			if(this.networkClient == null && var5.level != null) {
+			if(var5.level != null) {
 				LevelIO.save(var5.level, new VFile2("level.dat"));
 			}
 		} catch (Exception var2) {
@@ -258,11 +254,8 @@ public final class Minecraft implements Runnable {
 		try {
 			while(this.running) {
 				if(Display.isCloseRequested()) {
-					if(this.networkClient != null) {
-						networkClient.serverConnection.disconnect();
-					}
 						this.running = false;
-					}
+				}
 
 					try {
 						Timer var50 = this.timer;

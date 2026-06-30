@@ -10,11 +10,11 @@ public final class PauseScreen extends Screen {
 		this.buttons.add(new Button(4, this.width / 2 - 100, this.height / 4 + 120, "Back to game"));
 		((Button)this.buttons.get(2)).enabled = false;
 		((Button)this.buttons.get(3)).enabled = false;
-		if(this.minecraft.networkClient != null) {
-			((Button)this.buttons.get(1)).enabled = false;
-			((Button)this.buttons.get(2)).enabled = false;
-			((Button)this.buttons.get(3)).enabled = false;
-		}
+//		if(this.minecraft.networkClient != null) {
+//			((Button)this.buttons.get(1)).enabled = false;
+//			((Button)this.buttons.get(2)).enabled = false;
+//			((Button)this.buttons.get(3)).enabled = false;
+//		}
 
 	}
 

@@ -26,9 +26,6 @@ public class GameMode {
 		Tile var5 = Tile.tiles[var4.getTile(var1, var2, var3)];
 		boolean var6 = var4.netSetTile(var1, var2, var3, 0);
 		if(var5 != null && var6) {
-			if(this.minecraft.isOnlineClient()) {
-				this.minecraft.networkClient.sendTileUpdated(var1, var2, var3, 0, this.minecraft.player.inventory.getSelected());
-			}
 
 			if(var5.soundType != Tile.SoundType.none) {
 				var4.playSound("step." + var5.soundType.name, (float)var1, (float)var2, (float)var3, (var5.soundType.getVolume() + 1.0F) / 2.0F, var5.soundType.getPitch() * 0.8F);

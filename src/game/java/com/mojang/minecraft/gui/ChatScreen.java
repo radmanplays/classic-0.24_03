@@ -1,7 +1,5 @@
 package com.mojang.minecraft.gui;
 
-import com.mojang.minecraft.net.Client;
-import com.mojang.minecraft.net.Packet;
 import org.lwjgl.input.Keyboard;
 
 public final class ChatScreen extends Screen {
@@ -24,13 +22,13 @@ public final class ChatScreen extends Screen {
 		if(var2 == 1) {
 			this.minecraft.setScreen((Screen)null);
 		} else if(var2 == 28) {
-			Client var10000 = this.minecraft.networkClient;
-			String var4 = this.typedMsg.trim();
-			Client var3 = var10000;
-			var4 = var4.trim();
-			if(var4.length() > 0) {
-				var3.serverConnection.sendPacket(Packet.CHAT_MESSAGE, new Object[]{Integer.valueOf(-1), var4});
-			}
+//			Client var10000 = this.minecraft.networkClient;
+//			String var4 = this.typedMsg.trim();
+//			Client var3 = var10000;
+//			var4 = var4.trim();
+//			if(var4.length() > 0) {
+//				var3.serverConnection.sendPacket(Packet.CHAT_MESSAGE, new Object[]{Integer.valueOf(-1), var4});
+//			}
 
 			this.minecraft.setScreen((Screen)null);
 		} else {
