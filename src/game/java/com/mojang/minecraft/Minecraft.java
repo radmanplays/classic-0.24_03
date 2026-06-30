@@ -143,7 +143,7 @@ public final class Minecraft implements Runnable {
 			System.out.println("########## GL ERROR ##########");
 			System.out.println("@ " + var0);
 			System.out.println(var1 + ": " + var2);
-			System.exit(0);
+			throw new RuntimeException(var1 + ": " + var2);
 		}
 
 	}
