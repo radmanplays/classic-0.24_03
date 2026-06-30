@@ -143,9 +143,9 @@ public final class GameRenderer {
 //			GL11.glLightModel(GL11.GL_LIGHT_MODEL_AMBIENT, this.getBuffer(1.0F, 1.0F, 1.0F, 1.0F));
 		}
 
-		GL11.glEnable(GL11.GL_COLOR_MATERIAL);
+//		GL11.glEnable(GL11.GL_COLOR_MATERIAL);
 		GL11.glColorMaterial(GL11.GL_FRONT, GL11.GL_AMBIENT);
-		GL11.glEnable(GL11.GL_LIGHTING);
+//		GL11.glEnable(GL11.GL_LIGHTING);
 	}
 
 	private FloatBuffer getBuffer(float var1, float var2, float var3, float var4) {

@@ -178,19 +178,7 @@ public final class Minecraft implements Runnable {
 
 			Display.setTitle("Minecraft 0.24_SURVIVAL_TEST_03");
 
-			try {
-				Display.create();
-			} catch (LWJGLException var44) {
-				var44.printStackTrace();
-
-				try {
-					Thread.sleep(1000L);
-				} catch (InterruptedException var43) {
-				}
-
-				Display.create();
-			}
-
+			Display.create();
 			Keyboard.create();
 			Mouse.create();
 
@@ -549,7 +537,7 @@ public final class Minecraft implements Runnable {
 //									var79.toggleLight(false);
 									var79.setupFog();
 									var64.render(var5, var83);
-									var59.renderSurroundingGround();
+//									var59.renderSurroundingGround();
 //									GL11.glDisable(GL11.GL_LIGHTING);
 									var79.setupFog();
 									var59.renderClouds(var83);
@@ -1036,9 +1024,9 @@ public final class Minecraft implements Runnable {
 			LevelRenderer var25 = this.levelRenderer;
 			++var25.cloudTickCounter;
 			this.level.tickEntities();
-			if(!this.isOnlineClient()) {
+//			if(!this.isOnlineClient()) {
 				this.level.tick();
-			}
+//			}
 
 			this.particleEngine.tick();
 			levelSave();
@@ -1055,17 +1043,6 @@ public final class Minecraft implements Runnable {
 		LevelGen var3 = new LevelGen(this.loadingScreen);
 		Level var4 = var3.generateLevel(var2, 128 << var1, 128 << var1, 64);
 		this.loadLegacy(var4);
-	}
-
-	public final boolean loadLevel(String var1, int var2) {
-		Level var3 = this.levelIo.load(this.host, var1, var2);
-		boolean var4 = var3 != null;
-		if(!var4) {
-			return false;
-		} else {
-			this.loadLegacy(var3);
-			return true;
-		}
 	}
 
 	public final void loadLegacy(Level var1) {

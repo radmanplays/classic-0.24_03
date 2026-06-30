@@ -27,15 +27,15 @@ public final class PauseScreen extends Screen {
 			this.minecraft.setScreen(new NewLevelScreen(this));
 		}
 
-		if(this.minecraft.user != null) {
-			if(var1.id == 2) {
-				this.minecraft.setScreen(new SaveLevelScreen(this));
-			}
-
-			if(var1.id == 3) {
-				this.minecraft.setScreen(new LoadLevelScreen(this));
-			}
-		}
+//		if(this.minecraft.user != null) {
+//			if(var1.id == 2) {
+//				this.minecraft.setScreen(new SaveLevelScreen(this));
+//			}
+//
+//			if(var1.id == 3) {
+//				this.minecraft.setScreen(new LoadLevelScreen(this));
+//			}
+//		}
 
 		if(var1.id == 4) {
 			this.minecraft.setScreen((Screen)null);

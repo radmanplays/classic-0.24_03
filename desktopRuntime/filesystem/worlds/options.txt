@@ -3,6 +3,8 @@ sound:true
 invertYMouse:false
 showFrameRate:true
 viewDistance:0
+bobView:true
+anaglyph3d:false
 key_Forward:200
 key_Left:203
 key_Back:208

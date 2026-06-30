@@ -53,23 +53,23 @@ public class Textures {
 		var1.getRGB(0, 0, var2, var3, var4, 0, var2);
 
 		for(int var11 = 0; var11 < var4.length; ++var11) {
-			int var6 = var4[var11] >>> 24;
-			int var7 = var4[var11] >> 16 & 255;
-			int var8 = var4[var11] >> 8 & 255;
-			int var9 = var4[var11] & 255;
+			int a = var4[var11] >>> 24;
+			int r = var4[var11] >> 16 & 255;
+			int g = var4[var11] >> 8 & 255;
+			int b = var4[var11] & 255;
 			if(this.options.anaglyph3d) {
-				int var10 = (var7 * 30 + var8 * 59 + var9 * 11) / 100;
-				var8 = (var7 * 30 + var8 * 70) / 100;
-				var9 = (var7 * 30 + var9 * 70) / 100;
-				var7 = var10;
-				var8 = var8;
-				var9 = var9;
+				int var10 = (r * 30 + g * 59 + b * 11) / 100;
+				g = (r * 30 + g * 70) / 100;
+				b = (r * 30 + b * 70) / 100;
+				r = var10;
+				g = g;
+				b = b;
 			}
 
-			var5[var11 << 2] = (byte)var7;
-			var5[(var11 << 2) + 1] = (byte)var8;
-			var5[(var11 << 2) + 2] = (byte)var9;
-			var5[(var11 << 2) + 3] = (byte)var6;
+			var5[var11 << 2] = (byte)b;
+			var5[(var11 << 2) + 1] = (byte)g;
+			var5[(var11 << 2) + 2] = (byte)r;
+			var5[(var11 << 2) + 3] = (byte)a;
 		}
 
 		this.pixels.clear();

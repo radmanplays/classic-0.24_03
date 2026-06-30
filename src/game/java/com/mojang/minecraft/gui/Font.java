@@ -2,7 +2,10 @@ package com.mojang.minecraft.gui;
 
 import com.mojang.minecraft.renderer.Tesselator;
 import com.mojang.minecraft.renderer.Textures;
-import java.awt.image.BufferedImage;
+
+import net.lax1dude.eaglercraft.EagRuntime;
+import net.lax1dude.eaglercraft.opengl.ImageData;
+
 import java.io.IOException;
 import javax.imageio.ImageIO;
 import org.lwjgl.opengl.GL11;
@@ -12,12 +15,7 @@ public final class Font {
 	private int fontTexture = 0;
 
 	public Font(String var1, Textures var2) {
-		BufferedImage var3;
-		try {
-			var3 = ImageIO.read(Textures.class.getResourceAsStream(var1));
-		} catch (IOException var13) {
-			throw new RuntimeException(var13);
-		}
+		ImageData var3 = ImageData.loadImageFile(EagRuntime.getResourceStream(var1));
 
 		int var4 = var3.getWidth();
 		int var5 = var3.getHeight();
@@ -53,11 +51,13 @@ public final class Font {
 	}
 
 	public final void drawShadow(String var1, int var2, int var3, int var4) {
+		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 		this.draw(var1, var2 + 1, var3 + 1, var4, true);
 		this.draw(var1, var2, var3, var4);
 	}
 
 	public final void draw(String var1, int var2, int var3, int var4) {
+		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 		this.draw(var1, var2, var3, var4, false);
 	}
 
@@ -68,7 +68,9 @@ public final class Font {
 				var4 = (var4 & 16579836) >> 2;
 			}
 
+			GL11.glEnable(GL11.GL_BLEND);
 			GL11.glEnable(GL11.GL_TEXTURE_2D);
+			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 			GL11.glBindTexture(GL11.GL_TEXTURE_2D, this.fontTexture);
 			Tesselator var6 = Tesselator.instance;
 			var6.begin();
