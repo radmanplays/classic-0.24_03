@@ -691,7 +691,6 @@ public final class Minecraft implements Runnable {
 							Display.update();
 						}
 
-						Thread.sleep(5L);
 						checkGlError("Post render");
 						++var3;
 					} catch (Exception var45) {
