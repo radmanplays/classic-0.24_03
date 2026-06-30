@@ -1,6 +1,5 @@
 package com.mojang.minecraft;
 
-import com.mojang.comm.SocketConnection;
 import com.mojang.minecraft.character.Cube;
 import com.mojang.minecraft.character.Vec3;
 import com.mojang.minecraft.gamemode.GameMode;
@@ -826,9 +825,6 @@ public final class Minecraft implements Runnable {
 									return;
 								}
 
-								if(this.isOnlineClient()) {
-									this.networkClient.sendTileUpdated(var2, var3, var4, var1, var8);
-								}
 
 								this.level.netSetTile(var2, var3, var4, var8);
 								var6 = this.lighting.tileRenderer;
@@ -873,246 +869,6 @@ public final class Minecraft implements Runnable {
 		int var4;
 		int var41;
 		int var46;
-		if(this.networkClient != null && !(this.screen instanceof ErrorScreen)) {
-			if(!this.networkClient.isConnected()) {
-				this.loadingScreen.beginLevelLoading("Connecting..");
-				this.loadingScreen.setLoadingProgress(0);
-			} else {
-				Client var16 = this.networkClient;
-				if(var16.processData) {
-					SocketConnection var20 = var16.serverConnection;
-					if(var20.manager.isConnected()) {
-						try {
-							SocketConnection var19 = var16.serverConnection;
-							IWebSocketFrame packet = var19.webSocket.getNextBinaryFrame();
-							byte[] packetData = packet == null ? null : packet.getByteArray();
-
-							if (packetData != null && packetData.length > 0) {
-								var20.readBuffer.put(packetData);
-							}
-							var4 = 0;
-
-							while(var19.readBuffer.position() > 0 && var4++ != 100) {
-								var19.readBuffer.flip();
-								byte var5 = var19.readBuffer.get(0);
-								Packet var6 = Packet.PACKETS[var5];
-								if(var6 == null) {
-									throw new IOException("Bad command: " + var5);
-								}
-
-								if(var19.readBuffer.remaining() < var6.size + 1) {
-									var19.readBuffer.compact();
-									break;
-								}
-
-								var19.readBuffer.get();
-								Object[] var7 = new Object[var6.fields.length];
-
-								for(int var8 = 0; var8 < var7.length; ++var8) {
-									var7[var8] = var19.read(var6.fields[var8]);
-								}
-
-								Client var23 = var19.manager;
-								if(var23.processData) {
-									if(var6 == Packet.LOGIN) {
-										var23.minecraft.loadingScreen.beginLevelLoading(var7[1].toString());
-										var23.minecraft.loadingScreen.levelLoadUpdate(var7[2].toString());
-										var23.minecraft.player.userType = ((Byte)var7[3]).byteValue();
-									} else if(var6 == Packet.LEVEL_INITIALIZE) {
-										var23.minecraft.loadLegacy((Level)null);
-										var23.levelBuffer = new ByteArrayOutputStream();
-									} else {
-										byte var42;
-										if(var6 == Packet.LEVEL_DATA_CHUNK) {
-											short var31 = ((Short)var7[0]).shortValue();
-											byte[] var37 = (byte[])((byte[])var7[1]);
-											var42 = ((Byte)var7[2]).byteValue();
-											var23.minecraft.loadingScreen.setLoadingProgress(var42);
-											var23.levelBuffer.write(var37, 0, var31);
-										} else {
-											short var35;
-											short var39;
-											short var44;
-											if(var6 == Packet.LEVEL_FINALIZE) {
-												try {
-													var23.levelBuffer.close();
-												} catch (IOException var12) {
-													var12.printStackTrace();
-												}
-
-												byte[] var33 = LevelIO.loadBlocks(new ByteArrayInputStream(var23.levelBuffer.toByteArray()));
-												var23.levelBuffer = null;
-												var39 = ((Short)var7[0]).shortValue();
-												var44 = ((Short)var7[1]).shortValue();
-												var35 = ((Short)var7[2]).shortValue();
-												Level var9 = new Level();
-												var9.setNetworkMode(true);
-												var9.setData(var39, var44, var35, var33);
-												var23.minecraft.loadLegacy(var9);
-												var23.minecraft.hideScreen = false;
-												var23.connected = true;
-											} else if(var6 == Packet.SET_TILE) {
-												if(var23.minecraft.level != null) {
-													var23.minecraft.level.netSetTile(((Short)var7[0]).shortValue(), ((Short)var7[1]).shortValue(), ((Short)var7[2]).shortValue(), ((Byte)var7[3]).byteValue());
-												}
-											} else {
-												byte var10;
-												short var10003;
-												short var10004;
-												String var36;
-												NetworkPlayer var38;
-												byte var56;
-												if(var6 == Packet.PLAYER_JOIN) {
-													var56 = ((Byte)var7[0]).byteValue();
-													String var10002 = (String)var7[1];
-													var10003 = ((Short)var7[2]).shortValue();
-													var10004 = ((Short)var7[3]).shortValue();
-													short var10005 = ((Short)var7[4]).shortValue();
-													byte var10006 = ((Byte)var7[5]).byteValue();
-													byte var11 = ((Byte)var7[6]).byteValue();
-													var10 = var10006;
-													short var45 = var10005;
-													var44 = var10004;
-													var39 = var10003;
-													var36 = var10002;
-													var5 = var56;
-													if(var5 >= 0) {
-														var38 = new NetworkPlayer(var23.minecraft, var5, var36, var39, var44, var45, (float)(-var10 * 360) / 256.0F, (float)(var11 * 360) / 256.0F);
-														var23.players.put(Byte.valueOf(var5), var38);
-														var23.minecraft.level.addEntity(var38);
-													} else {
-														var23.minecraft.level.setSpawnPos(var39 / 32, var44 / 32, var45 / 32, (float)(var10 * 320 / 256));
-														var23.minecraft.player.moveTo((float)var39 / 32.0F, (float)var44 / 32.0F, (float)var45 / 32.0F, (float)(var10 * 360) / 256.0F, (float)(var11 * 360) / 256.0F);
-													}
-												} else {
-													byte var49;
-													NetworkPlayer var55;
-													byte var61;
-													if(var6 == Packet.PLAYER_TELEPORT) {
-														var56 = ((Byte)var7[0]).byteValue();
-														short var57 = ((Short)var7[1]).shortValue();
-														var10003 = ((Short)var7[2]).shortValue();
-														var10004 = ((Short)var7[3]).shortValue();
-														var61 = ((Byte)var7[4]).byteValue();
-														var10 = ((Byte)var7[5]).byteValue();
-														var49 = var61;
-														var44 = var10004;
-														var39 = var10003;
-														var35 = var57;
-														var5 = var56;
-														if(var5 < 0) {
-															var23.minecraft.player.moveTo((float)var35 / 32.0F, (float)var39 / 32.0F, (float)var44 / 32.0F, (float)(var49 * 360) / 256.0F, (float)(var10 * 360) / 256.0F);
-														} else {
-															var55 = (NetworkPlayer)var23.players.get(Byte.valueOf(var5));
-															if(var55 != null) {
-																var55.teleport(var35, var39, var44, (float)(-var49 * 360) / 256.0F, (float)(var10 * 360) / 256.0F);
-															}
-														}
-													} else {
-														byte var40;
-														byte var43;
-														byte var58;
-														byte var59;
-														if(var6 == Packet.PLAYER_MOVE_AND_ROTATE) {
-															var56 = ((Byte)var7[0]).byteValue();
-															var58 = ((Byte)var7[1]).byteValue();
-															var59 = ((Byte)var7[2]).byteValue();
-															byte var60 = ((Byte)var7[3]).byteValue();
-															var61 = ((Byte)var7[4]).byteValue();
-															var10 = ((Byte)var7[5]).byteValue();
-															var49 = var61;
-															var42 = var60;
-															var43 = var59;
-															var40 = var58;
-															var5 = var56;
-															if(var5 >= 0) {
-																var55 = (NetworkPlayer)var23.players.get(Byte.valueOf(var5));
-																if(var55 != null) {
-																	var55.queue(var40, var43, var42, (float)(-var49 * 360) / 256.0F, (float)(var10 * 360) / 256.0F);
-																}
-															}
-														} else if(var6 == Packet.PLAYER_ROTATE) {
-															var56 = ((Byte)var7[0]).byteValue();
-															var58 = ((Byte)var7[1]).byteValue();
-															var43 = ((Byte)var7[2]).byteValue();
-															var40 = var58;
-															var5 = var56;
-															if(var5 >= 0) {
-																NetworkPlayer var52 = (NetworkPlayer)var23.players.get(Byte.valueOf(var5));
-																if(var52 != null) {
-																	var52.queue((float)(-var40 * 360) / 256.0F, (float)(var43 * 360) / 256.0F);
-																}
-															}
-														} else if(var6 == Packet.PLAYER_MOVE) {
-															var56 = ((Byte)var7[0]).byteValue();
-															var58 = ((Byte)var7[1]).byteValue();
-															var59 = ((Byte)var7[2]).byteValue();
-															var42 = ((Byte)var7[3]).byteValue();
-															var43 = var59;
-															var40 = var58;
-															var5 = var56;
-															if(var5 >= 0) {
-																NetworkPlayer var53 = (NetworkPlayer)var23.players.get(Byte.valueOf(var5));
-																if(var53 != null) {
-																	var53.queue(var40, var43, var42);
-																}
-															}
-														} else if(var6 == Packet.PLAYER_DISCONNECT) {
-															var5 = ((Byte)var7[0]).byteValue();
-															if(var5 >= 0) {
-																var38 = (NetworkPlayer)var23.players.remove(Byte.valueOf(var5));
-																if(var38 != null) {
-																	var38.clear();
-																	var23.minecraft.level.removeEntity(var38);
-																}
-															}
-														} else if(var6 == Packet.CHAT_MESSAGE) {
-															var56 = ((Byte)var7[0]).byteValue();
-															var36 = (String)var7[1];
-															var5 = var56;
-															if(var5 < 0) {
-																var23.minecraft.gui.addMessage("&e" + var36);
-															} else {
-																var23.players.get(Byte.valueOf(var5));
-																var23.minecraft.gui.addMessage(var36);
-															}
-														} else if(var6 == Packet.KICK_PLAYER) {
-															var23.minecraft.setScreen(new ErrorScreen("Connection lost", (String)var7[0]));
-															var23.serverConnection.disconnect();
-														}
-													}
-												}
-											}
-										}
-									}
-								}
-
-								var19.readBuffer.compact();
-							}
-
-							var20.flush();
-						} catch (Exception var13) {
-							var16.minecraft.setScreen(new ErrorScreen("Disconnected!", "You\'ve lost connection to the server"));
-							var16.minecraft.hideScreen = false;
-							var13.printStackTrace();
-							var16.serverConnection.disconnect();
-							var16.minecraft.networkClient = null;
-						}
-					}
-				}
-
-				Player var26 = this.player;
-				var16 = this.networkClient;
-				if(var16.connected) {
-					int var21 = (int)(var26.x * 32.0F);
-					var4 = (int)(var26.y * 32.0F);
-					var41 = (int)(var26.z * 32.0F);
-					var46 = (int)(var26.yRot * 256.0F / 360.0F) & 255;
-					int var47 = (int)(var26.xRot * 256.0F / 360.0F) & 255;
-					var16.serverConnection.sendPacket(Packet.PLAYER_TELEPORT, new Object[]{Integer.valueOf(-1), Integer.valueOf(var21), Integer.valueOf(var4), Integer.valueOf(var41), Integer.valueOf(var46), Integer.valueOf(var47)});
-				}
-			}
-		}
 
 		if(this.screen == null && this.player.health <= 0) {
 			this.setScreen((Screen)null);
@@ -1205,16 +961,16 @@ public final class Minecraft implements Runnable {
 							this.pauseScreen();
 						}
 
-						if(Keyboard.getEventKey() == this.options.build.key && this.networkClient == null) {
+						if(Keyboard.getEventKey() == this.options.build.key && true) {
 							this.level.addEntity(new Sign(this, this.player.x, this.player.y, this.player.z, this.player.yRot));
 						}
 
-						if(Keyboard.getEventKey() == Keyboard.KEY_TAB && this.networkClient == null) {
+						if(Keyboard.getEventKey() == Keyboard.KEY_TAB && true) {
 							this.level.addEntity(new Arrow(this, this.player, this.player.x, this.player.y, this.player.z, this.player.yRot, this.player.xRot));
 						}
 
 						Keyboard.getEventKey();
-						if(Keyboard.getEventKey() == this.options.chat.key && this.networkClient != null && this.networkClient.isConnected()) {
+						if(Keyboard.getEventKey() == this.options.chat.key && false) {
 							this.player.releaseAllKeys();
 							this.setScreen(new ChatScreen());
 						}
@@ -1285,16 +1041,14 @@ public final class Minecraft implements Runnable {
 			}
 
 			this.particleEngine.tick();
-			if(this.networkClient == null) {
-				levelSave();
-			}
+			levelSave();
 		}
 
 	}
 
-	public final boolean isOnlineClient() {
-		return this.networkClient != null;
-	}
+//	public final boolean isOnlineClient() {
+//		return this.networkClient != null;
+//	}
 
 	public final void generateLevel(int var1) {
 		String var2 = this.user != null ? this.user.name : "anonymous";

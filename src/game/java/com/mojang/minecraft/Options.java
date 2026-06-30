@@ -3,11 +3,12 @@ package com.mojang.minecraft;
 import com.mojang.minecraft.renderer.Textures;
 
 import net.lax1dude.eaglercraft.EagRuntime;
+import net.lax1dude.eaglercraft.internal.vfs2.VFile2;
 import net.lax1dude.eaglercraft.opengl.ImageData;
 
-import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.Iterator;
 import org.lwjgl.input.Keyboard;
@@ -34,11 +35,11 @@ public final class Options {
 	private KeyMapping load = new KeyMapping("Load location", 19);
 	public KeyMapping[] keys = new KeyMapping[]{this.forward, this.left, this.back, this.right, this.jump, this.build, this.chat, this.toggleFog, this.save, this.load};
 	private Minecraft minecraft;
-	private File optionsFile;
+	private VFile2 optionsFile;
 
-	public Options(Minecraft var1, File var2) {
+	public Options(Minecraft var1) {
 		this.minecraft = var1;
-		this.optionsFile = new File(var2, "options.txt");
+		this.optionsFile = new VFile2("options.txt");
 		this.load();
 	}
 
@@ -99,7 +100,7 @@ public final class Options {
 				var6.addTexture(var4, var3);
 			}
 		}
-
+		this.minecraft.soundManager.settingsChanged();
 		this.save();
 	}
 
@@ -110,7 +111,7 @@ public final class Options {
 	private void load() {
 		try {
 			if(this.optionsFile.exists()) {
-				BufferedReader var1 = new BufferedReader(new FileReader(this.optionsFile));
+				BufferedReader var1 = new BufferedReader(new InputStreamReader(this.optionsFile.getInputStream()));
 				String var2 = null;
 
 				while(true) {
@@ -164,7 +165,7 @@ public final class Options {
 
 	private void save() {
 		try {
-			PrintWriter var1 = new PrintWriter(new FileWriter(this.optionsFile));
+			PrintWriter var1 = new PrintWriter(this.optionsFile.getOutputStream());
 			var1.println("music:" + this.music);
 			var1.println("sound:" + this.sound);
 			var1.println("invertYMouse:" + this.invertYMouse);
