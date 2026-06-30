@@ -532,9 +532,9 @@ public final class Minecraft implements Runnable {
 										}
 									}
 
-//									var79.toggleLight(true);
+									var79.toggleLight(true);
 									var59.level.blockMap.render(var82, var59.textures, var83);
-//									var79.toggleLight(false);
+									var79.toggleLight(false);
 									var79.setupFog();
 									var64.render(var5, var83);
 //									var59.renderSurroundingGround();
@@ -610,7 +610,7 @@ public final class Minecraft implements Runnable {
 									GL11.glPushMatrix();
 									GL11.glRotatef(var70.xRotO + (var70.xRot - var70.xRotO) * var83, 1.0F, 0.0F, 0.0F);
 									GL11.glRotatef(var70.yRotO + (var70.yRot - var70.yRotO) * var83, 0.0F, 1.0F, 0.0F);
-//									var97.minecraft.lighting.toggleLight(true);
+									var97.minecraft.lighting.toggleLight(true);
 									GL11.glPopMatrix();
 									GL11.glPushMatrix();
 									var98 = 0.8F;
@@ -665,7 +665,7 @@ public final class Minecraft implements Runnable {
 									GL11.glDisable(GL11.GL_NORMALIZE);
 									GL11.glDisable(GL11.GL_TEXTURE_2D);
 									GL11.glPopMatrix();
-//									var97.minecraft.lighting.toggleLight(false);
+									var97.minecraft.lighting.toggleLight(false);
 									if(!var79.minecraft.options.anaglyph3d) {
 										break;
 									}

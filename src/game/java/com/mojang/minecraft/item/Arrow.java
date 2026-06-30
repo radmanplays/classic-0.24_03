@@ -131,6 +131,8 @@ public class Arrow extends Entity {
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, var6);
 		float var7 = this.level.getBrightness((int)this.x, (int)this.y, (int)this.z);
 		GL11.glPushMatrix();
+		GL11.glEnable(GL11.GL_ALPHA_TEST);
+		GL11.glAlphaFunc(GL11.GL_GREATER, 0.1f);
 		GL11.glColor4f(var7, var7, var7, 1.0F);
 		GL11.glTranslatef(this.xo + (this.x - this.xo) * var2, this.yo + (this.y - this.yo) * var2 - this.heightOffset / 2.0F, this.zo + (this.z - this.zo) * var2);
 		GL11.glRotatef(this.yRotO + (this.yRot - this.yRotO) * var2 - 90.0F, 0.0F, 1.0F, 0.0F);

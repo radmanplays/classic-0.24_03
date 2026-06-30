@@ -9,8 +9,10 @@ import com.mojang.minecraft.player.Player;
 import com.mojang.minecraft.tilerenderer.TileRenderer;
 import org.lwjgl.opengl.GL11;
 import com.mojang.util.GLAllocation;
+import com.mojang.util.Vec3D_112;
 
 import net.lax1dude.eaglercraft.internal.buffer.FloatBuffer;
+import net.lax1dude.eaglercraft.opengl.GlStateManager;
 
 public final class GameRenderer {
 	public Minecraft minecraft;
@@ -24,6 +26,12 @@ public final class GameRenderer {
 	public float fogRed;
 	public float fogGreen;
 	public float fogBlue;
+	
+	private static final Vec3D_112 LIGHT0_POS = (new Vec3D_112(0.20000000298023224D, 1.0D, -0.699999988079071D))
+			.normalize();
+	private static final Vec3D_112 LIGHT1_POS = (new Vec3D_112(-0.20000000298023224D, 1.0D, 0.699999988079071D))
+			.normalize();
+
 
 	public GameRenderer(Minecraft var1) {
 		this.minecraft = var1;
@@ -60,24 +68,20 @@ public final class GameRenderer {
 		GL11.glRotatef(var5, 1.0F, 0.0F, 0.0F);
 	}
 
-//	public final void toggleLight(boolean var1) {
-//		if(!var1) {
-//			GL11.glDisable(GL11.GL_LIGHTING);
-//			GL11.glDisable(GL11.GL_LIGHT0);
-//		} else {
-//			GL11.glEnable(GL11.GL_LIGHTING);
-//			GL11.glEnable(GL11.GL_LIGHT0);
-//			GL11.glEnable(GL11.GL_COLOR_MATERIAL);
-//			GL11.glColorMaterial(GL11.GL_FRONT_AND_BACK, GL11.GL_AMBIENT_AND_DIFFUSE);
-//			float var4 = 0.7F;
-//			float var2 = 0.3F;
-//			Vec3 var3 = (new Vec3(0.0F, -1.0F, 0.5F)).normalize();
-//			GL11.glLight(GL11.GL_LIGHT0, GL11.GL_POSITION, this.getBuffer(var3.x, var3.y, var3.z, 0.0F));
-//			GL11.glLight(GL11.GL_LIGHT0, GL11.GL_DIFFUSE, this.getBuffer(var2, var2, var2, 1.0F));
-//			GL11.glLight(GL11.GL_LIGHT0, GL11.GL_AMBIENT, this.getBuffer(0.0F, 0.0F, 0.0F, 1.0F));
-//			GL11.glLightModel(GL11.GL_LIGHT_MODEL_AMBIENT, this.getBuffer(var4, var4, var4, 1.0F));
-//		}
-//	}
+	public final void toggleLight(boolean var1) {
+		if (!var1) {
+			GL11.glDisable(GL11.GL_LIGHTING);
+			GL11.glDisable(GL11.GL_LIGHT0);
+			GL11.glDisable(GL11.GL_LIGHT1);
+			GL11.glDisable(GL11.GL_COLOR_MATERIAL);
+		} else {
+			GL11.glEnable(GL11.GL_LIGHTING);
+			GlStateManager.enableMCLight(0, 0.6f, LIGHT0_POS.xCoord, -LIGHT0_POS.yCoord, LIGHT0_POS.zCoord, 0.0D);
+			GlStateManager.enableMCLight(1, 0.6f, LIGHT1_POS.xCoord, LIGHT1_POS.yCoord, LIGHT1_POS.zCoord, 0.0D);
+			GlStateManager.setMCLightAmbient(0.4f, 0.4f, 0.4f);
+			GL11.glEnable(GL11.GL_COLOR_MATERIAL);
+		}
+	}
 
 	public final void init() {
 		int var1 = this.minecraft.width * 240 / this.minecraft.height;

@@ -36,6 +36,8 @@ public class HumanoidMob extends Mob {
 		}
 
 		if(this.armor || this.helmet) {
+			GL11.glEnable(GL11.GL_ALPHA_TEST);
+			GL11.glAlphaFunc(GL11.GL_GREATER, 0.1f);
 			GL11.glBindTexture(GL11.GL_TEXTURE_2D, var1.loadTexture("/armor/plate.png"));
 			GL11.glDisable(GL11.GL_CULL_FACE);
 			ARMOR_MODEL.head.showModel = this.helmet;
@@ -61,6 +63,7 @@ public class HumanoidMob extends Mob {
 			var8.rightLeg.render(var7);
 			var8.leftLeg.render(var7);
 			GL11.glEnable(GL11.GL_CULL_FACE);
+			
 		}
 
 		GL11.glDisable(GL11.GL_ALPHA_TEST);

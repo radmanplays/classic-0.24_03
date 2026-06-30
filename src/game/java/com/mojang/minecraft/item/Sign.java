@@ -56,6 +56,8 @@ public class Sign extends Entity {
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, var3);
 		float var4 = this.level.getBrightness((int)this.x, (int)this.y, (int)this.z);
 		GL11.glPushMatrix();
+		GL11.glEnable(GL11.GL_ALPHA_TEST);
+		GL11.glAlphaFunc(GL11.GL_GREATER, 0.1f);
 		GL11.glColor4f(var4, var4, var4, 1.0F);
 		GL11.glTranslatef(this.xo + (this.x - this.xo) * var2, this.yo + (this.y - this.yo) * var2 - this.heightOffset / 2.0F, this.zo + (this.z - this.zo) * var2);
 		GL11.glRotatef(this.rot, 0.0F, 1.0F, 0.0F);
@@ -66,7 +68,7 @@ public class Sign extends Entity {
 		var5.signStick.render(1.0F / 16.0F);
 		GL11.glPopMatrix();
 		var4 = (float)(1.0D / 60.0D);
-		GL11.glTranslatef(0.0F, 0.5F, 0.09F);
+		GL11.glTranslatef(0.0F, 0.5F, 0.091F);
 		GL11.glScalef(var4, -var4, var4);
 		GL11.glNormal3f(0.0F, 0.0F, -1.0F * var4);
 		GL11.glEnable(GL11.GL_BLEND);
