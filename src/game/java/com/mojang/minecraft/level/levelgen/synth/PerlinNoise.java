@@ -1,6 +1,6 @@
 package com.mojang.minecraft.level.levelgen.synth;
 
-import java.util.Random;
+import net.lax1dude.eaglercraft.Random;
 
 public final class PerlinNoise extends Synth {
 	private ImprovedNoise[] noiseLevels;

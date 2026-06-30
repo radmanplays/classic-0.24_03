@@ -500,7 +500,6 @@ public final class Minecraft implements Runnable {
 									var76 = var79.minecraft.levelRenderer;
 									List<Chunk> var90 = new ArrayList<>(var76.allDirtyChunks);
 									var90.sort(new DirtyChunkSorter(var5));
-									var90.addAll(var76.allDirtyChunks);
 									int var91 = 4;
 									Iterator var96 = var90.iterator();
 

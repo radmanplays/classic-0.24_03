@@ -13,7 +13,8 @@ import com.mojang.minecraft.mob.Pig;
 import com.mojang.minecraft.mob.Skeleton;
 import com.mojang.minecraft.mob.Zombie;
 import java.util.ArrayList;
-import java.util.Random;
+import net.lax1dude.eaglercraft.Random;
+
 
 public final class LevelGen {
 	private LevelLoaderListener levelLoaderListener;
