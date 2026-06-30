@@ -9,9 +9,6 @@ import com.mojang.minecraft.level.tile.Tile;
 import com.mojang.minecraft.particle.ParticleEngine;
 import com.mojang.minecraft.phys.AABB;
 import com.mojang.minecraft.renderer.LevelRenderer;
-import com.mojang.minecraft.sound.AudioInfo;
-import com.mojang.minecraft.sound.EntitySoundPos;
-import com.mojang.minecraft.sound.LevelSoundPos;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -850,15 +847,12 @@ public class Level implements Serializable {
 	public void playSound(String var1, Entity var2, float var3, float var4) {
 		if(this.rendererContext != null) {
 			Minecraft var5 = this.rendererContext;
-			if(var5.soundPlayer == null || !var5.options.sound) {
+			if(var5.soundManager == null || !var5.options.sound) {
 				return;
 			}
 
 			if(var2.distanceToSqr(var5.player) < 1024.0F) {
-				AudioInfo var6 = var5.soundEngine.getAudioInfo(var1, var3, var4);
-				if(var6 != null) {
-					var5.soundPlayer.play(var6, new EntitySoundPos(var2, var5.player));
-				}
+				var5.soundManager.playSound(var1, var2);
 			}
 		}
 
@@ -867,14 +861,11 @@ public class Level implements Serializable {
 	public void playSound(String var1, float var2, float var3, float var4, float var5, float var6) {
 		if(this.rendererContext != null) {
 			Minecraft var7 = this.rendererContext;
-			if(var7.soundPlayer == null || !var7.options.sound) {
+			if(var7.soundManager == null || !var7.options.sound) {
 				return;
 			}
 
-			AudioInfo var8 = var7.soundEngine.getAudioInfo(var1, var5, var6);
-			if(var8 != null) {
-				var7.soundPlayer.play(var8, new LevelSoundPos(var2, var3, var4, var7.player));
-			}
+			var7.soundManager.playSound(var1, var2, var3, var4);
 		}
 
 	}
