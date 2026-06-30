@@ -1,6 +1,8 @@
 package com.mojang.minecraft.phys;
 
+import com.mojang.minecraft.character.Vec3;
 import java.io.Serializable;
+import org.lwjgl.opengl.GL11;
 
 public class AABB implements Serializable {
 	public static final long serialVersionUID = 0L;
@@ -161,5 +163,40 @@ public class AABB implements Serializable {
 		this.x1 += var1;
 		this.y1 += var2;
 		this.z1 += var3;
+	}
+
+	public boolean intersects(float var1, float var2, float var3, float var4, float var5, float var6) {
+		return var4 > this.x0 && var1 < this.x1 ? (var5 > this.y0 && var2 < this.y1 ? var6 > this.z0 && var3 < this.z1 : false) : false;
+	}
+
+	public boolean contains(Vec3 var1) {
+		return var1.x > this.x0 && var1.x < this.x1 ? (var1.y > this.y0 && var1.y < this.y1 ? var1.z > this.z0 && var1.z < this.z1 : false) : false;
+	}
+
+	public void render() {
+		GL11.glBegin(GL11.GL_LINE_STRIP);
+		GL11.glVertex3f(this.x0, this.y0, this.z0);
+		GL11.glVertex3f(this.x1, this.y0, this.z0);
+		GL11.glVertex3f(this.x1, this.y0, this.z1);
+		GL11.glVertex3f(this.x0, this.y0, this.z1);
+		GL11.glVertex3f(this.x0, this.y0, this.z0);
+		GL11.glEnd();
+		GL11.glBegin(GL11.GL_LINE_STRIP);
+		GL11.glVertex3f(this.x0, this.y1, this.z0);
+		GL11.glVertex3f(this.x1, this.y1, this.z0);
+		GL11.glVertex3f(this.x1, this.y1, this.z1);
+		GL11.glVertex3f(this.x0, this.y1, this.z1);
+		GL11.glVertex3f(this.x0, this.y1, this.z0);
+		GL11.glEnd();
+		GL11.glBegin(GL11.GL_LINES);
+		GL11.glVertex3f(this.x0, this.y0, this.z0);
+		GL11.glVertex3f(this.x0, this.y1, this.z0);
+		GL11.glVertex3f(this.x1, this.y0, this.z0);
+		GL11.glVertex3f(this.x1, this.y1, this.z0);
+		GL11.glVertex3f(this.x1, this.y0, this.z1);
+		GL11.glVertex3f(this.x1, this.y1, this.z1);
+		GL11.glVertex3f(this.x0, this.y0, this.z1);
+		GL11.glVertex3f(this.x0, this.y1, this.z1);
+		GL11.glEnd();
 	}
 }

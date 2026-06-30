@@ -9,10 +9,10 @@ public final class NewLevelScreen extends Screen {
 
 	public final void init() {
 		this.buttons.clear();
-		this.buttons.add(new Button(0, this.width / 2 - 100, this.height / 3, "Small"));
-		this.buttons.add(new Button(1, this.width / 2 - 100, this.height / 3 + 32, "Normal"));
-		this.buttons.add(new Button(2, this.width / 2 - 100, this.height / 3 + 64, "Huge"));
-		this.buttons.add(new Button(3, this.width / 2 - 100, this.height / 3 + 96, "Cancel"));
+		this.buttons.add(new Button(0, this.width / 2 - 100, this.height / 4, "Small"));
+		this.buttons.add(new Button(1, this.width / 2 - 100, this.height / 4 + 24, "Normal"));
+		this.buttons.add(new Button(2, this.width / 2 - 100, this.height / 4 + 48, "Huge"));
+		this.buttons.add(new Button(3, this.width / 2 - 100, this.height / 4 + 120, "Cancel"));
 	}
 
 	protected final void buttonClicked(Button var1) {

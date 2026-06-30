@@ -3,12 +3,15 @@ package com.mojang.minecraft.level.levelgen.synth;
 import java.util.Random;
 
 public final class PerlinNoise extends Synth {
-	private ImprovedNoise[] noiseLevels = new ImprovedNoise[8];
-	private int levels = 8;
+	private ImprovedNoise[] noiseLevels;
+	private int levels;
 
 	public PerlinNoise(Random var1, int var2) {
-		for(var2 = 0; var2 < 8; ++var2) {
-			this.noiseLevels[var2] = new ImprovedNoise(var1);
+		this.levels = var2;
+		this.noiseLevels = new ImprovedNoise[var2];
+
+		for(int var3 = 0; var3 < var2; ++var3) {
+			this.noiseLevels[var3] = new ImprovedNoise(var1);
 		}
 
 	}

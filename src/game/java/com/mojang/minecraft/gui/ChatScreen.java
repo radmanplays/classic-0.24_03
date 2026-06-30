@@ -1,6 +1,6 @@
 package com.mojang.minecraft.gui;
 
-import com.mojang.minecraft.net.ConnectionManager;
+import com.mojang.minecraft.net.Client;
 import com.mojang.minecraft.net.Packet;
 import org.lwjgl.input.Keyboard;
 
@@ -12,7 +12,7 @@ public final class ChatScreen extends Screen {
 		Keyboard.enableRepeatEvents(true);
 	}
 
-	public final void closeScreen() {
+	public final void removed() {
 		Keyboard.enableRepeatEvents(false);
 	}
 
@@ -24,12 +24,12 @@ public final class ChatScreen extends Screen {
 		if(var2 == 1) {
 			this.minecraft.setScreen((Screen)null);
 		} else if(var2 == 28) {
-			ConnectionManager var10000 = this.minecraft.connectionManager;
+			Client var10000 = this.minecraft.networkClient;
 			String var4 = this.typedMsg.trim();
-			ConnectionManager var3 = var10000;
+			Client var3 = var10000;
 			var4 = var4.trim();
 			if(var4.length() > 0) {
-				var3.connection.sendPacket(Packet.CHAT_MESSAGE, new Object[]{Integer.valueOf(-1), var4});
+				var3.serverConnection.sendPacket(Packet.CHAT_MESSAGE, new Object[]{Integer.valueOf(-1), var4});
 			}
 
 			this.minecraft.setScreen((Screen)null);
@@ -50,13 +50,13 @@ public final class ChatScreen extends Screen {
 		drawString(this.font, "> " + this.typedMsg + (this.counter / 6 % 2 == 0 ? "_" : ""), 4, this.height - 12, 14737632);
 	}
 
-	protected final void mousePressed(int var1, int var2, int var3) {
-		if(var3 == 0 && this.minecraft.hud.hoveredUsername != null) {
+	protected final void mouseClicked(int var1, int var2, int var3) {
+		if(var3 == 0 && this.minecraft.gui.hoveredUsername != null) {
 			if(this.typedMsg.length() > 0 && !this.typedMsg.endsWith(" ")) {
 				this.typedMsg = this.typedMsg + " ";
 			}
 
-			this.typedMsg = this.typedMsg + this.minecraft.hud.hoveredUsername;
+			this.typedMsg = this.typedMsg + this.minecraft.gui.hoveredUsername;
 			var1 = 64 - (this.minecraft.user.name.length() + 2);
 			if(this.typedMsg.length() > var1) {
 				this.typedMsg = this.typedMsg.substring(0, var1);

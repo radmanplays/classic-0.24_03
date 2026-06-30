@@ -9,9 +9,19 @@ public final class Polygon {
 
 	public Polygon(Vertex[] var1, int var2, int var3, int var4, int var5) {
 		this(var1);
-		var1[0] = var1[0].remap((float)var4, (float)var3);
-		var1[1] = var1[1].remap((float)var2, (float)var3);
-		var1[2] = var1[2].remap((float)var2, (float)var5);
-		var1[3] = var1[3].remap((float)var4, (float)var5);
+		float var7 = 0.0015625F;
+		float var6 = 0.003125F;
+		var1[0] = var1[0].remap((float)var4 / 64.0F - var7, (float)var3 / 32.0F + var6);
+		var1[1] = var1[1].remap((float)var2 / 64.0F + var7, (float)var3 / 32.0F + var6);
+		var1[2] = var1[2].remap((float)var2 / 64.0F + var7, (float)var5 / 32.0F - var6);
+		var1[3] = var1[3].remap((float)var4 / 64.0F - var7, (float)var5 / 32.0F - var6);
+	}
+
+	public Polygon(Vertex[] var1, float var2, float var3, float var4, float var5) {
+		this(var1);
+		var1[0] = var1[0].remap(var4, var3);
+		var1[1] = var1[1].remap(var2, var3);
+		var1[2] = var1[2].remap(var2, var5);
+		var1[3] = var1[3].remap(var4, var5);
 	}
 }

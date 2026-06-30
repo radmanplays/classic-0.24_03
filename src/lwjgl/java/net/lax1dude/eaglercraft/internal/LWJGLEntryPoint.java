@@ -69,28 +69,6 @@ public class LWJGLEntryPoint {
 
 		Minecraft minecraft = new Minecraft(854, 480, false);
 
-		ServerInfo serverInfo = null;
-		String username = null;
-
-		for (int i = 0; i < args.length; i++) {
-			if (args[i].equalsIgnoreCase("--server") && i + 1 < args.length) {
-				serverInfo = AddressResolver.resolveURI(args[i + 1]);
-			} else if (args[i].equalsIgnoreCase("--username") && i + 1 < args.length) {
-				username = args[i + 1];
-			}
-		}
-		if(serverInfo != null) {
-			if (username != null) {
-				minecraft.user = new User(username, "");
-				System.out.println("Using username: " + username);
-			}
-	
-			if (serverInfo.ip != null) {
-				minecraft.setServer(serverInfo.ip);
-				System.out.println("Connecting to server " + serverInfo.ip);
-			}
-		}
-		
 		File[] f = new File("resources").listFiles();
 		
 		for(File f1 : f) {

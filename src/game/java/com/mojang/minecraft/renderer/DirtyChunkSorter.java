@@ -16,6 +16,6 @@ public final class DirtyChunkSorter implements Comparator {
 		Chunk var5 = var10001;
 		boolean var3 = var5.isInFrustum;
 		boolean var4 = var6.isInFrustum;
-		return var3 && !var4 ? -1 : ((!var4 || var3) && var5.a(this.player) < var6.a(this.player) ? -1 : 1);
+		return var3 && !var4 ? -1 : ((!var4 || var3) && var5.compare(this.player) < var6.compare(this.player) ? -1 : 1);
 	}
 }

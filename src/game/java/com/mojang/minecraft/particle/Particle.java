@@ -40,6 +40,19 @@ public class Particle extends Entity {
 		this.makeStepSound = false;
 	}
 
+	public Particle setPower(float var1) {
+		this.xd *= var1;
+		this.yd = (this.yd - 0.1F) * var1 + 0.1F;
+		this.zd *= var1;
+		return this;
+	}
+
+	public Particle scale(float var1) {
+		this.setSize(0.2F * var1, 0.2F * var1);
+		this.size *= var1;
+		return this;
+	}
+
 	public void tick() {
 		this.xo = this.x;
 		this.yo = this.y;

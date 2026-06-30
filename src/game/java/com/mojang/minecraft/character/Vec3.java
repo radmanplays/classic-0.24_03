@@ -19,4 +19,8 @@ public final class Vec3 {
 		float var1 = (float)Math.sqrt((double)(this.x * this.x + this.y * this.y + this.z * this.z));
 		return new Vec3(this.x / var1, this.y / var1, this.z / var1);
 	}
+
+	public final Vec3 addVector(float var1, float var2, float var3) {
+		return new Vec3(this.x + var1, this.y + var2, this.z + var3);
+	}
 }

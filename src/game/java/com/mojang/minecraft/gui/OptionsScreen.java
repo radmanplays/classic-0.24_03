@@ -13,26 +13,26 @@ public final class OptionsScreen extends Screen {
 	}
 
 	public final void init() {
-		for(int var1 = 0; var1 < 5; ++var1) {
-			this.buttons.add(new Button(var1, this.width / 2 - 100, this.height / 6 + var1 * 24, this.options.getOption(var1)));
+		for(int var1 = 0; var1 < 7; ++var1) {
+			this.buttons.add(new SmallButton(var1, this.width / 2 - 155 + var1 % 2 * 160, this.height / 6 + 24 * (var1 >> 1), this.options.getMessage(var1)));
 		}
 
-		this.buttons.add(new Button(10, this.width / 2 - 100, this.height / 6 + 120 + 12, "Controls..."));
-		this.buttons.add(new Button(20, this.width / 2 - 100, this.height / 6 + 168, "Done"));
+		this.buttons.add(new Button(100, this.width / 2 - 100, this.height / 6 + 120 + 12, "Controls..."));
+		this.buttons.add(new Button(200, this.width / 2 - 100, this.height / 6 + 168, "Done"));
 	}
 
 	protected final void buttonClicked(Button var1) {
 		if(var1.enabled) {
-			if(var1.id < 5) {
+			if(var1.id < 100) {
 				this.options.setOption(var1.id, 1);
-				var1.msg = this.options.getOption(var1.id);
+				var1.msg = this.options.getMessage(var1.id);
 			}
 
-			if(var1.id == 10) {
+			if(var1.id == 100) {
 				this.minecraft.setScreen(new ControlsScreen(this, this.options));
 			}
 
-			if(var1.id == 20) {
+			if(var1.id == 200) {
 				this.minecraft.setScreen(this.parent);
 			}
 

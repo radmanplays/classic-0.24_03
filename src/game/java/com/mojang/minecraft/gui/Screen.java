@@ -7,7 +7,7 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
-public class Screen extends Gui {
+public class Screen extends GuiComponent {
 	protected Minecraft minecraft;
 	protected int width;
 	protected int height;
@@ -22,24 +22,24 @@ public class Screen extends Gui {
 			if(var4.visible) {
 				Font var8 = var5.font;
 				GL11.glEnable(GL11.GL_TEXTURE_2D);
-				GL11.glBindTexture(GL11.GL_TEXTURE_2D, var5.textures.getTextureId("/gui.png"));
+				GL11.glBindTexture(GL11.GL_TEXTURE_2D, var5.textures.loadTexture("/gui/gui.png"));
 				GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 				byte var9 = 1;
-				boolean var6 = var1 >= var4.w && var2 >= var4.h && var1 < var4.w + var4.x && var2 < var4.h + var4.y;
+				boolean var6 = var1 >= var4.x && var2 >= var4.y && var1 < var4.x + var4.w && var2 < var4.y + var4.h;
 				if(!var4.enabled) {
 					var9 = 0;
 				} else if(var6) {
 					var9 = 2;
 				}
 
-				var4.blit(var4.w, var4.h, 0, 46 + var9 * 20, var4.x / 2, var4.y);
-				var4.blit(var4.w + var4.x / 2, var4.h, 200 - var4.x / 2, 46 + var9 * 20, var4.x / 2, var4.y);
+				var4.blit(var4.x, var4.y, 0, 46 + var9 * 20, var4.w / 2, var4.h);
+				var4.blit(var4.x + var4.w / 2, var4.y, 200 - var4.w / 2, 46 + var9 * 20, var4.w / 2, var4.h);
 				if(!var4.enabled) {
-					Button.drawCenteredString(var8, var4.msg, var4.w + var4.x / 2, var4.h + (var4.y - 8) / 2, -6250336);
+					Button.drawCenteredString(var8, var4.msg, var4.x + var4.w / 2, var4.y + (var4.h - 8) / 2, -6250336);
 				} else if(var6) {
-					Button.drawCenteredString(var8, var4.msg, var4.w + var4.x / 2, var4.h + (var4.y - 8) / 2, 16777120);
+					Button.drawCenteredString(var8, var4.msg, var4.x + var4.w / 2, var4.y + (var4.h - 8) / 2, 16777120);
 				} else {
-					Button.drawCenteredString(var8, var4.msg, var4.w + var4.x / 2, var4.h + (var4.y - 8) / 2, 14737632);
+					Button.drawCenteredString(var8, var4.msg, var4.x + var4.w / 2, var4.y + (var4.h - 8) / 2, 14737632);
 				}
 			}
 		}
@@ -54,11 +54,11 @@ public class Screen extends Gui {
 
 	}
 
-	protected void mousePressed(int var1, int var2, int var3) {
+	protected void mouseClicked(int var1, int var2, int var3) {
 		if(var3 == 0) {
 			for(var3 = 0; var3 < this.buttons.size(); ++var3) {
 				Button var4 = (Button)this.buttons.get(var3);
-				if(var4.enabled && var1 >= var4.w && var2 >= var4.h && var1 < var4.w + var4.x && var2 < var4.h + var4.y) {
+				if(var4.enabled && var1 >= var4.x && var2 >= var4.y && var1 < var4.x + var4.w && var2 < var4.y + var4.h) {
 					this.buttonClicked(var4);
 				}
 			}
@@ -82,25 +82,25 @@ public class Screen extends Gui {
 
 	public final void updateEvents() {
 		while(Mouse.next()) {
-			this.updateMouseEvents();
+			this.mouseEvent();
 		}
 
 		while(Keyboard.next()) {
-			this.updateKeyboardEvents();
+			this.keyboardEvent();
 		}
 
 	}
 
-	public final void updateMouseEvents() {
+	public final void mouseEvent() {
 		if(Mouse.getEventButtonState()) {
 			int var1 = Mouse.getEventX() * this.width / this.minecraft.width;
 			int var2 = this.height - Mouse.getEventY() * this.height / this.minecraft.height - 1;
-			this.mousePressed(var1, var2, Mouse.getEventButton());
+			this.mouseClicked(var1, var2, Mouse.getEventButton());
 		}
 
 	}
 
-	public final void updateKeyboardEvents() {
+	public final void keyboardEvent() {
 		if(Keyboard.getEventKeyState()) {
 			this.keyPressed(Keyboard.getEventCharacter(), Keyboard.getEventKey());
 		}
@@ -110,6 +110,6 @@ public class Screen extends Gui {
 	public void tick() {
 	}
 
-	public void closeScreen() {
+	public void removed() {
 	}
 }

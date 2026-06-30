@@ -1,17 +1,19 @@
 package com.mojang.minecraft;
 
+import com.mojang.minecraft.level.BlockMap;
 import com.mojang.minecraft.level.Level;
 import com.mojang.minecraft.level.liquid.Liquid;
 import com.mojang.minecraft.level.tile.Tile;
-import com.mojang.minecraft.net.PlayerMove;
+import com.mojang.minecraft.net.PlayerPos;
 import com.mojang.minecraft.phys.AABB;
+import com.mojang.minecraft.player.Player;
 import com.mojang.minecraft.renderer.Textures;
 import java.io.Serializable;
 import java.util.ArrayList;
 
 public class Entity implements Serializable {
 	public static final long serialVersionUID = 0L;
-	protected Level level;
+	public Level level;
 	public float xo;
 	public float yo;
 	public float zo;
@@ -28,19 +30,28 @@ public class Entity implements Serializable {
 	public AABB bb;
 	public boolean onGround = false;
 	public boolean horizontalCollision = false;
+	public boolean collision = false;
+	public boolean slide = true;
 	public boolean removed = false;
 	public float heightOffset = 0.0F;
-	protected float bbWidth = 0.6F;
+	public float bbWidth = 0.6F;
 	public float bbHeight = 1.8F;
-	private float walkDist = 0.0F;
+	public float walkDistO = 0.0F;
+	public float walkDist = 0.0F;
 	public boolean makeStepSound = true;
+	public float fallDistance = 0.0F;
+	private int nextStep = 1;
+	public BlockMap blockMap;
+	public float xOld;
+	public float yOld;
+	public float zOld;
 
 	public Entity(Level var1) {
 		this.level = var1;
 		this.setPos(0.0F, 0.0F, 0.0F);
 	}
 
-	protected void resetPos() {
+	public void resetPos() {
 		if(this.level != null) {
 			float var1 = (float)this.level.xSpawn + 0.5F;
 			float var2 = (float)this.level.ySpawn;
@@ -67,7 +78,7 @@ public class Entity implements Serializable {
 		this.bbHeight = var2;
 	}
 
-	public void setPos(PlayerMove var1) {
+	public void setPos(PlayerPos var1) {
 		if(var1.moving) {
 			this.setPos(var1.x, var1.y, var1.z);
 		} else {
@@ -126,6 +137,7 @@ public class Entity implements Serializable {
 	}
 
 	public void tick() {
+		this.walkDistO = this.walkDist;
 		this.xo = this.x;
 		this.yo = this.y;
 		this.zo = this.z;
@@ -153,20 +165,46 @@ public class Entity implements Serializable {
 		}
 
 		this.bb.move(0.0F, var2, 0.0F);
+		if(!this.slide && var7 != var2) {
+			var3 = 0.0F;
+			var2 = var3;
+			var1 = var3;
+		}
 
 		for(var10 = 0; var10 < var9.size(); ++var10) {
 			var1 = ((AABB)var9.get(var10)).clipXCollide(this.bb, var1);
 		}
 
 		this.bb.move(var1, 0.0F, 0.0F);
+		if(!this.slide && var6 != var1) {
+			var3 = 0.0F;
+			var2 = var3;
+			var1 = var3;
+		}
 
 		for(var10 = 0; var10 < var9.size(); ++var10) {
 			var3 = ((AABB)var9.get(var10)).clipZCollide(this.bb, var3);
 		}
 
 		this.bb.move(0.0F, 0.0F, var3);
+		if(!this.slide && var8 != var3) {
+			var3 = 0.0F;
+			var2 = var3;
+			var1 = var3;
+		}
+
 		this.horizontalCollision = var6 != var1 || var8 != var3;
 		this.onGround = var7 != var2 && var7 < 0.0F;
+		this.collision = this.horizontalCollision || var7 != var2;
+		if(this.onGround) {
+			if(this.fallDistance > 0.0F) {
+				this.causeFallDamage(this.fallDistance);
+				this.fallDistance = 0.0F;
+			}
+		} else if(var2 < 0.0F) {
+			this.fallDistance -= var2;
+		}
+
 		if(var6 != var1) {
 			this.xd = 0.0F;
 		}
@@ -187,10 +225,10 @@ public class Entity implements Serializable {
 		this.walkDist = (float)((double)this.walkDist + Math.sqrt((double)(var13 * var13 + var1 * var1)) * 0.6D);
 		if(this.makeStepSound) {
 			int var11 = this.level.getTile((int)this.x, (int)(this.y - 0.2F - this.heightOffset), (int)this.z);
-			if(this.walkDist > 1.0F && var11 > 0) {
+			if(this.walkDist > (float)this.nextStep && var11 > 0) {
+				++this.nextStep;
 				Tile.SoundType var12 = Tile.tiles[var11].soundType;
 				if(var12 != Tile.SoundType.none) {
-					this.walkDist -= (float)((int)this.walkDist);
 					this.playSound("step." + var12.name, var12.getVolume() * (12.0F / 16.0F), var12.getPitch());
 				}
 			}
@@ -198,8 +236,16 @@ public class Entity implements Serializable {
 
 	}
 
+	protected void causeFallDamage(float var1) {
+	}
+
 	public boolean isInWater() {
 		return this.level.containsLiquid(this.bb.grow(0.0F, -0.4F, 0.0F), Liquid.water);
+	}
+
+	public boolean isUnderWater() {
+		int var1 = this.level.getTile((int)this.x, (int)(this.y + 0.12F), (int)this.z);
+		return var1 != 0 ? Tile.tiles[var1].getLiquidType().equals(Liquid.water) : false;
 	}
 
 	public boolean isInLava() {
@@ -230,11 +276,11 @@ public class Entity implements Serializable {
 		return this.level.isLit(var1, var2, var3);
 	}
 
-	public float getBrightness() {
-		int var1 = (int)this.x;
+	public float getBrightness(float var1) {
+		int var4 = (int)this.x;
 		int var2 = (int)(this.y + this.heightOffset / 2.0F);
 		int var3 = (int)this.z;
-		return this.level.getBrightness(var1, var2, var3);
+		return this.level.getBrightness(var4, var2, var3);
 	}
 
 	public void render(Textures var1, float var2) {
@@ -262,5 +308,61 @@ public class Entity implements Serializable {
 		float var3 = this.y - var1.y;
 		float var4 = this.z - var1.z;
 		return (float)Math.sqrt((double)(var2 * var2 + var3 * var3 + var4 * var4));
+	}
+
+	public float distanceToSqr(Entity var1) {
+		float var2 = this.x - var1.x;
+		float var3 = this.y - var1.y;
+		float var4 = this.z - var1.z;
+		return var2 * var2 + var3 * var3 + var4 * var4;
+	}
+
+	public void playerTouch(Player var1) {
+	}
+
+	public void push(Entity var1) {
+		float var2 = var1.x - this.x;
+		float var3 = var1.z - this.z;
+		float var4 = var2 * var2 + var3 * var3;
+		if(var4 >= 0.01F) {
+			var4 = (float)Math.sqrt((double)var4);
+			var2 /= var4;
+			var3 /= var4;
+			var2 /= var4;
+			var3 /= var4;
+			var2 *= 0.05F;
+			var3 *= 0.05F;
+			this.pushEntity(-var2, 0.0F, -var3);
+			var1.pushEntity(var2, 0.0F, var3);
+		}
+
+	}
+
+	protected void pushEntity(float var1, float var2, float var3) {
+		this.xd += var1;
+		this.yd += var2;
+		this.zd += var3;
+	}
+
+	public void hurt(Entity var1, int var2) {
+	}
+
+	public boolean intersects(float var1, float var2, float var3, float var4, float var5, float var6) {
+		return this.bb.intersects(var1, var2, var3, var4, var5, var6);
+	}
+
+	public boolean isPickable() {
+		return false;
+	}
+
+	public boolean isPushable() {
+		return false;
+	}
+
+	public boolean isShootable() {
+		return false;
+	}
+
+	public void awardKillScore(Entity var1, int var2) {
 	}
 }

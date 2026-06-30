@@ -14,6 +14,6 @@ public final class DistanceSorter implements Comparator {
 		Chunk var10001 = (Chunk)var1;
 		Chunk var4 = (Chunk)var2;
 		Chunk var3 = var10001;
-		return var3.a(this.player) < var4.a(this.player) ? -1 : 1;
+		return var3.compare(this.player) < var4.compare(this.player) ? -1 : 1;
 	}
 }

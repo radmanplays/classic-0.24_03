@@ -1,7 +1,7 @@
 package com.mojang.minecraft.level;
 
 import com.mojang.minecraft.Minecraft;
-import com.mojang.minecraft.ProgressListener;
+import com.mojang.minecraft.LevelLoaderListener;
 
 import net.lax1dude.eaglercraft.internal.vfs2.VFile2;
 
@@ -21,9 +21,9 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 public final class LevelIO {
-	private ProgressListener progress;
+	private LevelLoaderListener progress;
 
-	public LevelIO(ProgressListener var1) {
+	public LevelIO(LevelLoaderListener var1) {
 		this.progress = var1;
 	}
 	public final Level load(VFile2 var1) {

@@ -8,12 +8,9 @@ public final class PauseScreen extends Screen {
 		this.buttons.add(new Button(2, this.width / 2 - 100, this.height / 4 + 48, "Save level.."));
 		this.buttons.add(new Button(3, this.width / 2 - 100, this.height / 4 + 72, "Load level.."));
 		this.buttons.add(new Button(4, this.width / 2 - 100, this.height / 4 + 120, "Back to game"));
-		if(this.minecraft.user == null) {
-			((Button)this.buttons.get(2)).enabled = false;
-			((Button)this.buttons.get(3)).enabled = false;
-		}
-
-		if(this.minecraft.connectionManager != null) {
+		((Button)this.buttons.get(2)).enabled = false;
+		((Button)this.buttons.get(3)).enabled = false;
+		if(this.minecraft.networkClient != null) {
 			((Button)this.buttons.get(1)).enabled = false;
 			((Button)this.buttons.get(2)).enabled = false;
 			((Button)this.buttons.get(3)).enabled = false;
@@ -28,6 +25,16 @@ public final class PauseScreen extends Screen {
 
 		if(var1.id == 1) {
 			this.minecraft.setScreen(new NewLevelScreen(this));
+		}
+
+		if(this.minecraft.user != null) {
+			if(var1.id == 2) {
+				this.minecraft.setScreen(new SaveLevelScreen(this));
+			}
+
+			if(var1.id == 3) {
+				this.minecraft.setScreen(new LoadLevelScreen(this));
+			}
 		}
 
 		if(var1.id == 4) {

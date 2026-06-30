@@ -101,15 +101,6 @@
 						}
 					};
 
-					if (typeof window.URLSearchParams !== "undefined") {
-						const params = new URLSearchParams(window.location.search);
-						const server = params.get("server");
-						const username = params.get("username");
-
-						if (server) window.eaglercraftXOpts.joinServer = server;
-						if (username) window.eaglercraftXOpts.username = username;
-					}
-
 					
 					const scriptElement = document.createElement("script");
 					scriptElement.type = "text/javascript";

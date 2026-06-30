@@ -1,169 +1,192 @@
 package com.mojang.minecraft.level.levelgen;
 
-import com.mojang.minecraft.ProgressListener;
+import com.mojang.minecraft.Entity;
+import com.mojang.minecraft.LevelLoaderListener;
 import com.mojang.minecraft.level.Level;
 import com.mojang.minecraft.level.levelgen.synth.Distort;
 import com.mojang.minecraft.level.levelgen.synth.PerlinNoise;
+import com.mojang.minecraft.level.liquid.Liquid;
 import com.mojang.minecraft.level.tile.Tile;
+import com.mojang.minecraft.mob.Creeper;
+import com.mojang.minecraft.mob.Mob;
+import com.mojang.minecraft.mob.Pig;
+import com.mojang.minecraft.mob.Skeleton;
+import com.mojang.minecraft.mob.Zombie;
 import java.util.ArrayList;
 import java.util.Random;
 
 public final class LevelGen {
-	private ProgressListener a;
+	private LevelLoaderListener levelLoaderListener;
 	private int width;
 	private int height;
 	private int depth;
 	private Random random = new Random();
 	private byte[] blocks;
+	private int waterLevel;
 	private int[] coords = new int[1048576];
 
-	public LevelGen(ProgressListener var1) {
-		this.a = var1;
+	public LevelGen(LevelLoaderListener var1) {
+		this.levelLoaderListener = var1;
 	}
 
 	public final Level generateLevel(String var1, int var2, int var3, int var4) {
-		this.a.beginLevelLoading("Generating level");
+		this.levelLoaderListener.beginLevelLoading("Generating level");
 		this.width = var2;
 		this.height = var3;
 		this.depth = 64;
+		this.waterLevel = 32;
 		this.blocks = new byte[var2 * var3 << 6];
-		this.a.levelLoadUpdate("Raising..");
+		this.levelLoaderListener.levelLoadUpdate("Raising..");
 		LevelGen var5 = this;
 		Distort var8 = new Distort(new PerlinNoise(this.random, 8), new PerlinNoise(this.random, 8));
 		Distort var9 = new Distort(new PerlinNoise(this.random, 8), new PerlinNoise(this.random, 8));
-		PerlinNoise var10 = new PerlinNoise(this.random, 8);
+		PerlinNoise var10 = new PerlinNoise(this.random, 6);
 		int[] var11 = new int[this.width * this.height];
 		float var6 = 1.3F;
 
-		int var13;
 		int var14;
-		for(var13 = 0; var13 < var5.width; ++var13) {
-			var5.setNextPhase(var13 * 100 / (var5.width - 1));
+		int var15;
+		for(var14 = 0; var14 < var5.width; ++var14) {
+			var5.setNextPhase(var14 * 100 / (var5.width - 1));
 
-			for(var14 = 0; var14 < var5.height; ++var14) {
-				double var15 = var8.getValue((double)((float)var13 * var6), (double)((float)var14 * var6)) / 8.0D - 8.0D;
-				double var17 = var9.getValue((double)((float)var13 * var6), (double)((float)var14 * var6)) / 6.0D + 6.0D;
-				double var19 = var10.getValue((double)var13, (double)var14) / 8.0D;
-				if(var19 > 0.0D) {
-					var17 = var15;
+			for(var15 = 0; var15 < var5.height; ++var15) {
+				double var16 = var8.getValue((double)((float)var14 * var6), (double)((float)var15 * var6)) / 6.0D + (double)-4;
+				double var18 = var9.getValue((double)((float)var14 * var6), (double)((float)var15 * var6)) / 5.0D + 10.0D + (double)-4;
+				double var20 = var10.getValue((double)var14, (double)var15) / 8.0D;
+				if(var20 > 0.0D) {
+					var18 = var16;
 				}
 
-				double var21 = Math.max(var15, var17) / 2.0D;
-				if(var21 < 0.0D) {
-					var21 *= 0.8D;
+				double var22 = Math.max(var16, var18) / 2.0D;
+				if(var22 < 0.0D) {
+					var22 *= 0.8D;
 				}
 
-				var11[var13 + var14 * var5.width] = (int)var21;
+				var11[var14 + var15 * var5.width] = (int)var22;
 			}
 		}
 
-		this.a.levelLoadUpdate("Eroding..");
-		int[] var34 = var11;
+		this.levelLoaderListener.levelLoadUpdate("Eroding..");
+		int[] var35 = var11;
 		var5 = this;
 		var9 = new Distort(new PerlinNoise(this.random, 8), new PerlinNoise(this.random, 8));
-		Distort var40 = new Distort(new PerlinNoise(this.random, 8), new PerlinNoise(this.random, 8));
+		Distort var41 = new Distort(new PerlinNoise(this.random, 8), new PerlinNoise(this.random, 8));
 
-		int var16;
 		int var32;
-		int var43;
-		int var46;
-		for(var43 = 0; var43 < var5.width; ++var43) {
-			var5.setNextPhase(var43 * 100 / (var5.width - 1));
+		int var44;
+		int var47;
+		for(var44 = 0; var44 < var5.width; ++var44) {
+			var5.setNextPhase(var44 * 100 / (var5.width - 1));
 
 			for(var32 = 0; var32 < var5.height; ++var32) {
-				double var45 = var9.getValue((double)(var43 << 1), (double)(var32 << 1)) / 8.0D;
-				var46 = var40.getValue((double)(var43 << 1), (double)(var32 << 1)) > 0.0D ? 1 : 0;
-				if(var45 > 2.0D) {
-					var16 = var34[var43 + var32 * var5.width];
-					var16 = ((var16 - var46) / 2 << 1) + var46;
-					var34[var43 + var32 * var5.width] = var16;
+				double var13 = var9.getValue((double)(var44 << 1), (double)(var32 << 1)) / 8.0D;
+				var15 = var41.getValue((double)(var44 << 1), (double)(var32 << 1)) > 0.0D ? 1 : 0;
+				if(var13 > 2.0D) {
+					var47 = var35[var44 + var32 * var5.width];
+					var47 = ((var47 - var15) / 2 << 1) + var15;
+					var35[var44 + var32 * var5.width] = var47;
 				}
 			}
 		}
 
-		this.a.levelLoadUpdate("Soiling..");
-		var34 = var11;
+		this.levelLoaderListener.levelLoadUpdate("Soiling..");
+		var35 = var11;
 		var5 = this;
-		int var37 = this.width;
-		int var42 = this.height;
-		var43 = this.depth;
-		PerlinNoise var33 = new PerlinNoise(this.random, 8);
+		int var38 = this.width;
+		int var43 = this.height;
+		var44 = this.depth;
+		PerlinNoise var34 = new PerlinNoise(this.random, 8);
 
-		int var18;
-		int var50;
-		for(var13 = 0; var13 < var37; ++var13) {
-			var5.setNextPhase(var13 * 100 / (var5.width - 1));
+		int var17;
+		int var46;
+		int var52;
+		for(var46 = 0; var46 < var38; ++var46) {
+			var5.setNextPhase(var46 * 100 / (var5.width - 1));
 
-			for(var14 = 0; var14 < var42; ++var14) {
-				var46 = (int)(var33.getValue((double)var13, (double)var14) / 24.0D) - 4;
-				var16 = var34[var13 + var14 * var37] + var43 / 2;
-				var50 = var16 + var46;
-				var34[var13 + var14 * var37] = Math.max(var16, var50);
+			for(var14 = 0; var14 < var43; ++var14) {
+				var15 = (int)(var34.getValue((double)var46, (double)var14) / 24.0D) - 4;
+				var47 = var35[var46 + var14 * var38] + var5.waterLevel;
+				var17 = var47 + var15;
+				var35[var46 + var14 * var38] = Math.max(var47, var17);
+				if(var35[var46 + var14 * var38] > var44 - 2) {
+					var35[var46 + var14 * var38] = var44 - 2;
+				}
 
-				for(var18 = 0; var18 < var43; ++var18) {
-					int var52 = (var18 * var5.height + var14) * var5.width + var13;
-					int var20 = 0;
-					if(var18 <= var16) {
-						var20 = Tile.dirt.id;
+				if(var35[var46 + var14 * var38] < 1) {
+					var35[var46 + var14 * var38] = 1;
+				}
+
+				for(var52 = 0; var52 < var44; ++var52) {
+					int var19 = (var52 * var5.height + var14) * var5.width + var46;
+					int var54 = 0;
+					if(var52 <= var47) {
+						var54 = Tile.dirt.id;
 					}
 
-					if(var18 <= var50) {
-						var20 = Tile.rock.id;
+					if(var52 <= var17) {
+						var54 = Tile.rock.id;
 					}
 
-					var5.blocks[var52] = (byte)var20;
+					if(var52 == 0) {
+						var54 = Tile.lava.id;
+					}
+
+					var5.blocks[var19] = (byte)var54;
 				}
 			}
 		}
 
-		this.a.levelLoadUpdate("Carving..");
-		boolean var39 = true;
-		boolean var35 = false;
+		this.levelLoaderListener.levelLoadUpdate("Carving..");
+		boolean var40 = true;
+		boolean var36 = false;
 		var5 = this;
-		var42 = this.width;
-		var43 = this.height;
+		var43 = this.width;
+		var44 = this.height;
 		var32 = this.depth;
-		var13 = var42 * var43 * var32 / 256 / 64;
+		var46 = var43 * var44 * var32 / 256 / 64 << 1;
 
-		for(var14 = 0; var14 < var13; ++var14) {
-			var5.setNextPhase(var14 * 100 / (var13 - 1) / 4);
-			float var47 = var5.random.nextFloat() * (float)var42;
-			float var48 = var5.random.nextFloat() * (float)var32;
-			float var51 = var5.random.nextFloat() * (float)var43;
-			var18 = (int)((var5.random.nextFloat() + var5.random.nextFloat()) * 75.0F);
+		for(var14 = 0; var14 < var46; ++var14) {
+			var5.setNextPhase(var14 * 100 / (var46 - 1) / 4);
+			float var48 = var5.random.nextFloat() * (float)var43;
+			float var49 = var5.random.nextFloat() * (float)var32;
+			float var50 = var5.random.nextFloat() * (float)var44;
+			var52 = (int)((var5.random.nextFloat() + var5.random.nextFloat()) * 200.0F);
 			float var53 = (float)((double)var5.random.nextFloat() * Math.PI * 2.0D);
-			float var54 = 0.0F;
-			float var55 = (float)((double)var5.random.nextFloat() * Math.PI * 2.0D);
-			float var22 = 0.0F;
+			float var55 = 0.0F;
+			float var21 = (float)((double)var5.random.nextFloat() * Math.PI * 2.0D);
+			float var56 = 0.0F;
+			float var23 = var5.random.nextFloat() * var5.random.nextFloat();
 
-			for(int var7 = 0; var7 < var18; ++var7) {
-				var47 = (float)((double)var47 + Math.sin((double)var53) * Math.cos((double)var55));
-				var51 = (float)((double)var51 + Math.cos((double)var53) * Math.cos((double)var55));
-				var48 = (float)((double)var48 + Math.sin((double)var55));
-				var53 += var54 * 0.2F;
-				var54 *= 0.9F;
-				var54 += var5.random.nextFloat() - var5.random.nextFloat();
-				var55 += var22 * 0.5F;
-				var55 *= 0.5F;
-				var22 *= 0.9F;
-				var22 += var5.random.nextFloat() - var5.random.nextFloat();
-				if(var5.random.nextFloat() >= 0.3F) {
-					float var36 = var47 + var5.random.nextFloat() * 4.0F - 2.0F;
-					float var41 = var48 + var5.random.nextFloat() * 4.0F - 2.0F;
-					float var12 = var51 + var5.random.nextFloat() * 4.0F - 2.0F;
-					float var23 = (float)(Math.sin((double)var7 * Math.PI / (double)var18) * 2.5D + 1.0D);
+			for(int var7 = 0; var7 < var52; ++var7) {
+				var48 = (float)((double)var48 + Math.sin((double)var53) * Math.cos((double)var21));
+				var50 = (float)((double)var50 + Math.cos((double)var53) * Math.cos((double)var21));
+				var49 = (float)((double)var49 + Math.sin((double)var21));
+				var53 += var55 * 0.2F;
+				var55 *= 0.9F;
+				var55 += var5.random.nextFloat() - var5.random.nextFloat();
+				var21 += var56 * 0.5F;
+				var21 *= 0.5F;
+				var56 *= 12.0F / 16.0F;
+				var56 += var5.random.nextFloat() - var5.random.nextFloat();
+				if(var5.random.nextFloat() >= 0.25F) {
+					float var37 = var48 + (var5.random.nextFloat() * 4.0F - 2.0F) * 0.2F;
+					float var42 = var49 + (var5.random.nextFloat() * 4.0F - 2.0F) * 0.2F;
+					float var12 = var50 + (var5.random.nextFloat() * 4.0F - 2.0F) * 0.2F;
+					float var24 = ((float)var5.depth - var42) / (float)var5.depth;
+					var24 = 1.2F + (var24 * 3.5F + 1.0F) * var23;
+					var24 = (float)(Math.sin((double)var7 * Math.PI / (double)var52) * (double)var24);
 
-					for(int var24 = (int)(var36 - var23); var24 <= (int)(var36 + var23); ++var24) {
-						for(int var25 = (int)(var41 - var23); var25 <= (int)(var41 + var23); ++var25) {
-							for(int var26 = (int)(var12 - var23); var26 <= (int)(var12 + var23); ++var26) {
-								float var27 = (float)var24 - var36;
-								float var28 = (float)var25 - var41;
-								float var29 = (float)var26 - var12;
-								var27 = var27 * var27 + var28 * var28 * 2.0F + var29 * var29;
-								if(var27 < var23 * var23 && var24 >= 1 && var25 >= 1 && var26 >= 1 && var24 < var5.width - 1 && var25 < var5.depth - 1 && var26 < var5.height - 1) {
-									int var56 = (var25 * var5.height + var26) * var5.width + var24;
-									if(var5.blocks[var56] == Tile.rock.id) {
-										var5.blocks[var56] = 0;
+					for(int var25 = (int)(var37 - var24); var25 <= (int)(var37 + var24); ++var25) {
+						for(int var26 = (int)(var42 - var24); var26 <= (int)(var42 + var24); ++var26) {
+							for(int var27 = (int)(var12 - var24); var27 <= (int)(var12 + var24); ++var27) {
+								float var28 = (float)var25 - var37;
+								float var29 = (float)var26 - var42;
+								float var30 = (float)var27 - var12;
+								var28 = var28 * var28 + var29 * var29 * 2.0F + var30 * var30;
+								if(var28 < var24 * var24 && var25 >= 1 && var26 >= 1 && var27 >= 1 && var25 < var5.width - 1 && var26 < var5.depth - 1 && var27 < var5.height - 1) {
+									int var57 = (var26 * var5.height + var27) * var5.width + var25;
+									if(var5.blocks[var57] == Tile.rock.id) {
+										var5.blocks[var57] = 0;
 									}
 								}
 							}
@@ -173,56 +196,61 @@ public final class LevelGen {
 			}
 		}
 
-		this.carveTunnels(Tile.oreCoal.id, 90, 1, 4);
-		this.carveTunnels(Tile.oreIron.id, 70, 2, 4);
-		this.carveTunnels(Tile.oreGold.id, 50, 3, 4);
-		this.a.levelLoadUpdate("Watering..");
+		this.addOre(Tile.coalOre.id, 90, 1, 4);
+		this.addOre(Tile.ironOre.id, 70, 2, 4);
+		this.addOre(Tile.goldOre.id, 50, 3, 4);
+		this.levelLoaderListener.levelLoadUpdate("Watering..");
 		var5 = this;
-		long var38 = System.nanoTime();
-		long var44 = 0L;
-		var13 = Tile.calmWater.id;
+		long var39 = System.nanoTime();
+		long var45 = 0L;
+		var46 = Tile.calmWater.id;
 		this.setNextPhase(0);
 
 		for(var14 = 0; var14 < var5.width; ++var14) {
-			var44 += var5.floodFillLiquid(var14, var5.depth / 2 - 1, 0, 0, var13);
-			var44 += var5.floodFillLiquid(var14, var5.depth / 2 - 1, var5.height - 1, 0, var13);
+			var45 += var5.floodFillLiquid(var14, var5.depth / 2 - 1, 0, 0, var46);
+			var45 += var5.floodFillLiquid(var14, var5.depth / 2 - 1, var5.height - 1, 0, var46);
 		}
 
 		for(var14 = 0; var14 < var5.height; ++var14) {
-			var44 += var5.floodFillLiquid(0, var5.depth / 2 - 1, var14, 0, var13);
-			var44 += var5.floodFillLiquid(var5.width - 1, var5.depth / 2 - 1, var14, 0, var13);
+			var45 += var5.floodFillLiquid(0, var5.depth / 2 - 1, var14, 0, var46);
+			var45 += var5.floodFillLiquid(var5.width - 1, var5.depth / 2 - 1, var14, 0, var46);
 		}
 
-		var14 = var5.width * var5.height / 200;
+		var14 = var5.width * var5.height / 8000;
 
-		for(var46 = 0; var46 < var14; ++var46) {
-			if(var46 % 100 == 0) {
-				var5.setNextPhase(var46 * 100 / (var14 - 1));
+		for(var15 = 0; var15 < var14; ++var15) {
+			if(var15 % 100 == 0) {
+				var5.setNextPhase(var15 * 100 / (var14 - 1));
 			}
 
-			var16 = var5.random.nextInt(var5.width);
-			var50 = var5.depth / 2 - 1 - var5.random.nextInt(3);
-			var18 = var5.random.nextInt(var5.height);
-			if(var5.blocks[(var50 * var5.height + var18) * var5.width + var16] == 0) {
-				var44 += var5.floodFillLiquid(var16, var50, var18, 0, var13);
+			var47 = var5.random.nextInt(var5.width);
+			var17 = var5.waterLevel - 1 - var5.random.nextInt(2);
+			var52 = var5.random.nextInt(var5.height);
+			if(var5.blocks[(var17 * var5.height + var52) * var5.width + var47] == 0) {
+				var45 += var5.floodFillLiquid(var47, var17, var52, 0, var46);
 			}
 		}
 
 		var5.setNextPhase(100);
-		long var49 = System.nanoTime();
-		System.out.println("Flood filled " + var44 + " tiles in " + (double)(var49 - var38) / 1000000.0D + " ms");
-		this.a.levelLoadUpdate("Melting..");
+		long var51 = System.nanoTime();
+		System.out.println("Flood filled " + var45 + " tiles in " + (double)(var51 - var39) / 1000000.0D + " ms");
+		this.levelLoaderListener.levelLoadUpdate("Melting..");
 		this.addLava();
-		this.a.levelLoadUpdate("Growing..");
+		this.levelLoaderListener.levelLoadUpdate("Growing..");
 		this.addBeaches(var11);
-		this.a.levelLoadUpdate("Planting..");
+		this.levelLoaderListener.levelLoadUpdate("Planting..");
 		this.plantTrees(var11);
-		Level var31 = new Level();
-		var31.setData(var2, 64, var3, this.blocks);
-		var31.createTime = System.currentTimeMillis();
-		var31.creator = var1;
-		var31.name = "A Nice World";
-		return var31;
+		this.addMushrooms(var11);
+		Level var33 = new Level();
+		var33.waterLevel = this.waterLevel;
+		var33.setData(var2, 64, var3, this.blocks);
+		var33.createTime = System.currentTimeMillis();
+		var33.creator = var1;
+		var33.name = "A Nice World";
+		this.generateTrees(var33, var11);
+		this.levelLoaderListener.levelLoadUpdate("Spawning..");
+		this.spawnEntities(var33);
+		return var33;
 	}
 
 	private void addBeaches(int[] var1) {
@@ -258,75 +286,116 @@ public final class LevelGen {
 
 	}
 
-	private void plantTrees(int[] var1) {
-		int var2 = this.width;
-		int var3 = this.width * this.height / 4000;
+	private void generateTrees(Level var1, int[] var2) {
+		int var3 = this.width;
+		int var4 = this.width * this.height / 4000;
 
-		for(int var4 = 0; var4 < var3; ++var4) {
-			this.setNextPhase(var4 * 100 / (var3 - 1));
-			int var5 = this.random.nextInt(this.width);
-			int var6 = this.random.nextInt(this.height);
+		for(int var5 = 0; var5 < var4; ++var5) {
+			this.setNextPhase(var5 * 50 / (var4 - 1) + 50);
+			int var6 = this.random.nextInt(this.width);
+			int var7 = this.random.nextInt(this.height);
 
-			for(int var7 = 0; var7 < 20; ++var7) {
-				int var8 = var5;
+			for(int var8 = 0; var8 < 20; ++var8) {
 				int var9 = var6;
+				int var10 = var7;
 
-				for(int var10 = 0; var10 < 20; ++var10) {
-					var8 += this.random.nextInt(6) - this.random.nextInt(6);
+				for(int var11 = 0; var11 < 20; ++var11) {
 					var9 += this.random.nextInt(6) - this.random.nextInt(6);
-					if(var8 >= 0 && var9 >= 0 && var8 < this.width && var9 < this.height) {
-						int var11 = var1[var8 + var9 * var2] + 1;
-						int var12 = this.random.nextInt(3) + 4;
-						boolean var13 = true;
+					var10 += this.random.nextInt(6) - this.random.nextInt(6);
+					if(var9 >= 0 && var10 >= 0 && var9 < this.width && var10 < this.height) {
+						int var12 = var2[var9 + var10 * var3] + 1;
+						if(this.random.nextInt(4) == 0) {
+							var1.maybeGrowTree(var9, var12, var10);
+						}
+					}
+				}
+			}
+		}
 
-						int var14;
-						int var16;
-						int var17;
-						int var18;
-						for(var14 = var11; var14 <= var11 + 1 + var12; ++var14) {
-							byte var15 = 1;
-							if(var14 >= var11 + 1 + var12 - 2) {
-								var15 = 2;
+	}
+
+	private void spawnEntities(Level var1) {
+		int var2 = this.width * this.height * this.depth / 800;
+		int var3 = 0;
+
+		for(int var4 = 0; var4 < var2; ++var4) {
+			this.setNextPhase(var4 * 100 / (var2 - 1));
+			int var5 = this.random.nextInt(4);
+			int var6 = this.random.nextInt(this.width);
+			int var7 = (int)(Math.min(this.random.nextFloat(), this.random.nextFloat()) * (float)this.depth);
+			int var8 = this.random.nextInt(this.height);
+			if(!var1.isSolidTile(var6, var7, var8) && var1.getLiquid(var6, var7, var8) == Liquid.none && (!var1.isLit(var6, var7, var8) || this.random.nextInt(5) == 0)) {
+				for(int var9 = 0; var9 < 3; ++var9) {
+					int var10 = var6;
+					int var11 = var7;
+					int var12 = var8;
+
+					for(int var13 = 0; var13 < 3; ++var13) {
+						var10 += this.random.nextInt(6) - this.random.nextInt(6);
+						var11 += this.random.nextInt(1) - this.random.nextInt(1);
+						var12 += this.random.nextInt(6) - this.random.nextInt(6);
+						if(var10 >= 0 && var12 >= 1 && var11 >= 0 && var11 < this.depth - 2 && var10 < this.width && var12 < this.height && var1.isSolidTile(var10, var11 - 1, var12) && !var1.isSolidTile(var10, var11, var12) && !var1.isSolidTile(var10, var11 + 1, var12)) {
+							float var14 = (float)var10 + 0.5F;
+							float var15 = (float)var11 + 1.0F;
+							float var16 = (float)var12 + 0.5F;
+							Object var17 = null;
+							if(var5 == 0) {
+								var17 = new Zombie(var1, var14, var15, var16);
 							}
 
-							for(var16 = var8 - var15; var16 <= var8 + var15 && var13; ++var16) {
-								for(var17 = var9 - var15; var17 <= var9 + var15 && var13; ++var17) {
-									if(var16 >= 0 && var14 >= 0 && var17 >= 0 && var16 < this.width && var14 < this.depth && var17 < this.height) {
-										var18 = this.blocks[(var14 * this.height + var17) * this.width + var16] & 255;
-										if(var18 != 0) {
-											var13 = false;
-										}
-									} else {
-										var13 = false;
-									}
-								}
+							if(var5 == 1) {
+								var17 = new Skeleton(var1, var14, var15, var16);
+							}
+
+							if(var5 == 2) {
+								var17 = new Pig(var1, var14, var15, var16);
+							}
+
+							if(var5 == 3) {
+								var17 = new Creeper(var1, var14, var15, var16);
+							}
+
+							if(var1.isFree(((Mob)var17).bb)) {
+								++var3;
+								var1.addEntity((Entity)var17);
 							}
 						}
+					}
+				}
+			}
+		}
 
+		System.out.println(var3 + " mobs");
+	}
+
+	private void plantTrees(int[] var1) {
+		int var2 = this.width;
+		int var3 = this.width * this.height / 3000;
+
+		for(int var4 = 0; var4 < var3; ++var4) {
+			int var5 = this.random.nextInt(2);
+			this.setNextPhase(var4 * 50 / (var3 - 1));
+			int var6 = this.random.nextInt(this.width);
+			int var7 = this.random.nextInt(this.height);
+
+			for(int var8 = 0; var8 < 10; ++var8) {
+				int var9 = var6;
+				int var10 = var7;
+
+				for(int var11 = 0; var11 < 5; ++var11) {
+					var9 += this.random.nextInt(6) - this.random.nextInt(6);
+					var10 += this.random.nextInt(6) - this.random.nextInt(6);
+					if((var5 < 2 || this.random.nextInt(4) == 0) && var9 >= 0 && var10 >= 0 && var9 < this.width && var10 < this.height) {
+						int var12 = var1[var9 + var10 * var2] + 1;
+						boolean var13 = (this.blocks[(var12 * this.height + var10) * this.width + var9] & 255) == 0;
 						if(var13) {
-							var14 = (var11 * this.height + var9) * this.width + var8;
-							int var22 = this.blocks[((var11 - 1) * this.height + var9) * this.width + var8] & 255;
-							if(var22 == Tile.grass.id && var11 < this.depth - var12 - 1) {
-								this.blocks[var14 - 1 * this.width * this.height] = (byte)Tile.dirt.id;
-
-								for(var16 = var11 - 3 + var12; var16 <= var11 + var12; ++var16) {
-									var17 = var16 - (var11 + var12);
-									var18 = 1 - var17 / 2;
-
-									for(int var21 = var8 - var18; var21 <= var8 + var18; ++var21) {
-										var22 = var21 - var8;
-
-										for(int var19 = var9 - var18; var19 <= var9 + var18; ++var19) {
-											int var20 = var19 - var9;
-											if(Math.abs(var22) != var18 || Math.abs(var20) != var18 || this.random.nextInt(2) != 0 && var17 != 0) {
-												this.blocks[(var16 * this.height + var19) * this.width + var21] = (byte)Tile.leaf.id;
-											}
-										}
-									}
-								}
-
-								for(var16 = 0; var16 < var12; ++var16) {
-									this.blocks[var14 + var16 * this.width * this.height] = (byte)Tile.log.id;
+							int var14 = (var12 * this.height + var10) * this.width + var9;
+							var12 = this.blocks[((var12 - 1) * this.height + var10) * this.width + var9] & 255;
+							if(var12 == Tile.grass.id) {
+								if(var5 == 0) {
+									this.blocks[var14] = (byte)Tile.flower.id;
+								} else if(var5 == 1) {
+									this.blocks[var14] = (byte)Tile.rose.id;
 								}
 							}
 						}
@@ -337,7 +406,51 @@ public final class LevelGen {
 
 	}
 
-	private void carveTunnels(int var1, int var2, int var3, int var4) {
+	private void addMushrooms(int[] var1) {
+		int var2 = this.width;
+		int var3 = 0;
+		int var4 = this.width * this.height * this.depth / 2000;
+
+		for(int var5 = 0; var5 < var4; ++var5) {
+			int var6 = this.random.nextInt(2);
+			this.setNextPhase(var5 * 50 / (var4 - 1) + 50);
+			int var7 = this.random.nextInt(this.width);
+			int var8 = this.random.nextInt(this.depth);
+			int var9 = this.random.nextInt(this.height);
+
+			for(int var10 = 0; var10 < 20; ++var10) {
+				int var11 = var7;
+				int var12 = var8;
+				int var13 = var9;
+
+				for(int var14 = 0; var14 < 5; ++var14) {
+					var11 += this.random.nextInt(6) - this.random.nextInt(6);
+					var12 += this.random.nextInt(2) - this.random.nextInt(2);
+					var13 += this.random.nextInt(6) - this.random.nextInt(6);
+					if((var6 < 2 || this.random.nextInt(4) == 0) && var11 >= 0 && var13 >= 0 && var12 >= 1 && var11 < this.width && var13 < this.height && var12 < var1[var11 + var13 * var2] - 1) {
+						boolean var15 = (this.blocks[(var12 * this.height + var13) * this.width + var11] & 255) == 0;
+						if(var15) {
+							int var17 = (var12 * this.height + var13) * this.width + var11;
+							int var16 = this.blocks[((var12 - 1) * this.height + var13) * this.width + var11] & 255;
+							if(var16 == Tile.rock.id) {
+								if(var6 == 0) {
+									this.blocks[var17] = (byte)Tile.mushroom1.id;
+								} else if(var6 == 1) {
+									this.blocks[var17] = (byte)Tile.mushroom2.id;
+								}
+
+								++var3;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		System.out.println("Added " + var3 + " mushrooms");
+	}
+
+	private void addOre(int var1, int var2, int var3, int var4) {
 		byte var25 = (byte)var1;
 		var4 = this.width;
 		int var5 = this.height;
@@ -390,12 +503,12 @@ public final class LevelGen {
 	}
 
 	private void setNextPhase(int var1) {
-		this.a.setLoadingProgress(var1);
+		this.levelLoaderListener.setLoadingProgress(var1);
 	}
 
 	private void addLava() {
 		int var1 = 0;
-		int var2 = this.width * this.height * this.depth / 10000;
+		int var2 = this.width * this.height * this.depth / 20000;
 
 		for(int var3 = 0; var3 < var2; ++var3) {
 			if(var3 % 100 == 0) {
@@ -403,7 +516,7 @@ public final class LevelGen {
 			}
 
 			int var4 = this.random.nextInt(this.width);
-			int var5 = this.random.nextInt(this.depth / 2 - 4);
+			int var5 = (int)(this.random.nextFloat() * this.random.nextFloat() * (float)(this.waterLevel - 3));
 			int var6 = this.random.nextInt(this.height);
 			if(this.blocks[(var5 * this.height + var6) * this.width + var4] == 0) {
 				++var1;

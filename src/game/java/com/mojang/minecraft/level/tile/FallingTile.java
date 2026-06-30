@@ -8,7 +8,7 @@ public final class FallingTile extends Tile {
 		super(var1, var2);
 	}
 
-	public final void onBlockAdded(Level var1, int var2, int var3, int var4) {
+	public final void onPlace(Level var1, int var2, int var3, int var4) {
 		this.tryToFall(var1, var2, var3, var4);
 	}
 
@@ -34,6 +34,11 @@ public final class FallingTile extends Tile {
 
 			if(!var10000 || var5 <= 0) {
 				if(var5 != var3) {
+					var7 = var1.getTile(var11, var5, var6);
+					if(var7 > 0 && Tile.tiles[var7].getLiquidType() != Liquid.none) {
+						var1.setTileNoUpdate(var11, var5, var6, 0);
+					}
+
 					var1.swap(var2, var3, var4, var11, var5, var6);
 				}
 

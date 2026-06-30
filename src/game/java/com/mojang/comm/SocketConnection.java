@@ -3,7 +3,7 @@ package com.mojang.comm;
 import com.mojang.minecraft.gui.ErrorScreen;
 import com.mojang.minecraft.level.Level;
 import com.mojang.minecraft.level.LevelIO;
-import com.mojang.minecraft.net.ConnectionManager;
+import com.mojang.minecraft.net.Client;
 import com.mojang.minecraft.net.NetworkPlayer;
 import com.mojang.minecraft.net.Packet;
 import net.lax1dude.eaglercraft.internal.IWebSocketClient;
@@ -19,11 +19,11 @@ import java.util.Arrays;
 public final class SocketConnection {
 	public ByteBuffer readBuffer = ByteBuffer.allocate(1048576);
 	public ByteBuffer writeBuffer = ByteBuffer.allocate(1048576);
-	public ConnectionManager manager;
+	public Client manager;
 	public byte[] stringPacket = new byte[64];
 	public IWebSocketClient webSocket;
 
-	public SocketConnection(ConnectionManager var1) {
+	public SocketConnection(Client var1) {
 		this.manager = var1;
 		this.readBuffer.clear();
 		this.writeBuffer.clear();

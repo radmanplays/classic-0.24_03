@@ -6,8 +6,12 @@ import com.mojang.minecraft.Minecraft;
 import com.mojang.minecraft.character.Vec3;
 import com.mojang.minecraft.level.liquid.Liquid;
 import com.mojang.minecraft.level.tile.Tile;
+import com.mojang.minecraft.particle.ParticleEngine;
 import com.mojang.minecraft.phys.AABB;
 import com.mojang.minecraft.renderer.LevelRenderer;
+import com.mojang.minecraft.sound.AudioInfo;
+import com.mojang.minecraft.sound.EntitySoundPos;
+import com.mojang.minecraft.sound.LevelSoundPos;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -15,6 +19,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 public class Level implements Serializable {
@@ -34,12 +39,18 @@ public class Level implements Serializable {
 	private transient int[] heightMap;
 	private transient Random random = new Random();
 	private transient int randValue = this.random.nextInt();
-	private transient ArrayList tickList = new ArrayList();
-	public ArrayList entities = new ArrayList();
+	private transient ArrayList tickNextTickList = new ArrayList();
+	public BlockMap blockMap;
 	private boolean networkMode = false;
 	public transient Minecraft rendererContext;
+	public int waterLevel;
+	public int skyColor;
+	public int fogColor;
+	public int cloudColor;
 	int unprocessed = 0;
 	private int tickCount = 0;
+	public Entity player;
+	public ParticleEngine particleEngine;
 
 	public void initTransient() {
 		if(this.blocks == null) {
@@ -51,13 +62,29 @@ public class Level implements Serializable {
 			this.calcLightDepths(0, 0, this.width, this.height);
 			this.random = new Random();
 			this.randValue = this.random.nextInt();
-			this.tickList = new ArrayList();
-			if(this.entities == null) {
-				this.entities = new ArrayList();
+			this.tickNextTickList = new ArrayList();
+			if(this.waterLevel == 0) {
+				this.waterLevel = this.depth / 2;
+			}
+
+			if(this.skyColor == 0) {
+				this.skyColor = 10079487;
+			}
+
+			if(this.fogColor == 0) {
+				this.fogColor = 16777215;
+			}
+
+			if(this.cloudColor == 0) {
+				this.cloudColor = 16777215;
 			}
 
 			if(this.xSpawn == 0 && this.ySpawn == 0 && this.zSpawn == 0) {
 				this.findSpawn();
+			}
+
+			if(this.blockMap == null) {
+				this.blockMap = new BlockMap(this.width, this.depth, this.height);
 			}
 
 		}
@@ -76,8 +103,9 @@ public class Level implements Serializable {
 			((LevelRenderer)this.levelListeners.get(var1)).compileSurroundingGround();
 		}
 
-		this.tickList.clear();
+		this.tickNextTickList.clear();
 		this.findSpawn();
+		this.initTransient();
 		System.gc();
 	}
 
@@ -260,12 +288,12 @@ public class Level implements Serializable {
 	}
 
 	public void updateNeighborsAt(int var1, int var2, int var3, int var4) {
-		this.updateNeighborAt(var1 - 1, var2, var3, var4);
-		this.updateNeighborAt(var1 + 1, var2, var3, var4);
-		this.updateNeighborAt(var1, var2 - 1, var3, var4);
-		this.updateNeighborAt(var1, var2 + 1, var3, var4);
-		this.updateNeighborAt(var1, var2, var3 - 1, var4);
-		this.updateNeighborAt(var1, var2, var3 + 1, var4);
+		this.neighborChanged(var1 - 1, var2, var3, var4);
+		this.neighborChanged(var1 + 1, var2, var3, var4);
+		this.neighborChanged(var1, var2 - 1, var3, var4);
+		this.neighborChanged(var1, var2 + 1, var3, var4);
+		this.neighborChanged(var1, var2, var3 - 1, var4);
+		this.neighborChanged(var1, var2, var3 + 1, var4);
 	}
 
 	public boolean setTileNoUpdate(int var1, int var2, int var3, int var4) {
@@ -281,7 +309,7 @@ public class Level implements Serializable {
 		}
 	}
 
-	private void updateNeighborAt(int var1, int var2, int var3, int var4) {
+	private void neighborChanged(int var1, int var2, int var3, int var4) {
 		if(var1 >= 0 && var2 >= 0 && var3 >= 0 && var1 < this.width && var2 < this.depth && var3 < this.height) {
 			Tile var5 = Tile.tiles[this.blocks[(var2 * this.height + var3) * this.width + var1]];
 			if(var5 != null) {
@@ -305,12 +333,35 @@ public class Level implements Serializable {
 	}
 
 	public void tickEntities() {
-		for(int var1 = 0; var1 < this.entities.size(); ++var1) {
-			((Entity)this.entities.get(var1)).tick();
-			if(((Entity)this.entities.get(var1)).removed) {
-				this.entities.remove(var1--);
+		BlockMap var9 = this.blockMap;
+
+		for(int var1 = 0; var1 < var9.all.size(); ++var1) {
+			Entity var2 = (Entity)var9.all.get(var1);
+			var2.tick();
+			if(var2.removed) {
+				var9.all.remove(var1--);
+				var9.slot.init(var2.xOld, var2.yOld, var2.zOld).remove(var2);
+			} else {
+				int var3 = (int)(var2.xOld / 16.0F);
+				int var4 = (int)(var2.yOld / 16.0F);
+				int var5 = (int)(var2.zOld / 16.0F);
+				int var6 = (int)(var2.x / 16.0F);
+				int var7 = (int)(var2.y / 16.0F);
+				int var8 = (int)(var2.z / 16.0F);
+				if(var3 != var6 || var4 != var7 || var5 != var8) {
+					Slot var12 = var9.slot.init(var2.xOld, var2.yOld, var2.zOld);
+					Slot var10 = var9.slot2.init(var2.x, var2.y, var2.z);
+					if(!var12.equals(var10)) {
+						var12.remove(var2);
+						var10.add(var2);
+						var2.xOld = var2.x;
+						var2.yOld = var2.y;
+						var2.zOld = var2.z;
+					}
+				}
 			}
 		}
+
 	}
 
 	public void tick() {
@@ -331,13 +382,13 @@ public class Level implements Serializable {
 		int var6;
 		int var7;
 		if(this.tickCount % 5 == 0) {
-			var6 = this.tickList.size();
+			var6 = this.tickNextTickList.size();
 
 			for(var7 = 0; var7 < var6; ++var7) {
-				Coord var8 = (Coord)this.tickList.remove(0);
-				if(var8.scheduledTime > 0) {
-					--var8.scheduledTime;
-					this.tickList.add(var8);
+				Coord var8 = (Coord)this.tickNextTickList.remove(0);
+				if(var8.time > 0) {
+					--var8.time;
+					this.tickNextTickList.add(var8);
 				} else if(this.isInLevelBounds(var8.x, var8.y, var8.z)) {
 					byte var9 = this.blocks[(var8.y * this.height + var8.z) * this.width + var8.x];
 					if(var9 == var8.id && var9 > 0) {
@@ -370,11 +421,11 @@ public class Level implements Serializable {
 	}
 
 	public float getGroundLevel() {
-		return (float)(this.depth / 2 - 2);
+		return this.getWaterLevel() - 2.0F;
 	}
 
 	public float getWaterLevel() {
-		return (float)(this.depth / 2);
+		return (float)this.waterLevel;
 	}
 
 	public boolean containsAnyLiquid(AABB var1) {
@@ -496,28 +547,26 @@ public class Level implements Serializable {
 			Coord var5 = new Coord(var1, var2, var3, var4);
 			if(var4 > 0) {
 				var3 = Tile.tiles[var4].getTickDelay();
-				var5.scheduledTime = var3;
+				var5.time = var3;
 			}
 
-			this.tickList.add(var5);
+			this.tickNextTickList.add(var5);
 		}
 	}
 
 	public boolean isFree(AABB var1) {
-		for(int var2 = 0; var2 < this.entities.size(); ++var2) {
-			if(((Entity)this.entities.get(var2)).bb.intersects(var1)) {
-				return false;
-			}
-		}
+		return this.blockMap.getEntities((Entity)null, var1).size() == 0;
+	}
 
-		return true;
+	public List findEntities(Entity var1, AABB var2) {
+		return this.blockMap.getEntities(var1, var2);
 	}
 
 	public boolean isSolid(float var1, float var2, float var3, float var4) {
-		return this.isSolidTile(var1 - var4, var2 - var4, var3 - var4) ? true : (this.isSolidTile(var1 - var4, var2 - var4, var3 + var4) ? true : (this.isSolidTile(var1 - var4, var2 + var4, var3 - var4) ? true : (this.isSolidTile(var1 - var4, var2 + var4, var3 + var4) ? true : (this.isSolidTile(var1 + var4, var2 - var4, var3 - var4) ? true : (this.isSolidTile(var1 + var4, var2 - var4, var3 + var4) ? true : (this.isSolidTile(var1 + var4, var2 + var4, var3 - var4) ? true : this.isSolidTile(var1 + var4, var2 + var4, var3 + var4)))))));
+		return this.isSolid(var1 - var4, var2 - var4, var3 - var4) ? true : (this.isSolid(var1 - var4, var2 - var4, var3 + var4) ? true : (this.isSolid(var1 - var4, var2 + var4, var3 - var4) ? true : (this.isSolid(var1 - var4, var2 + var4, var3 + var4) ? true : (this.isSolid(var1 + var4, var2 - var4, var3 - var4) ? true : (this.isSolid(var1 + var4, var2 - var4, var3 + var4) ? true : (this.isSolid(var1 + var4, var2 + var4, var3 - var4) ? true : this.isSolid(var1 + var4, var2 + var4, var3 + var4)))))));
 	}
 
-	private boolean isSolidTile(float var1, float var2, float var3) {
+	private boolean isSolid(float var1, float var2, float var3) {
 		int var4 = this.getTile((int)var1, (int)var2, (int)var3);
 		return var4 > 0 && Tile.tiles[var4].isSolid();
 	}
@@ -618,7 +667,7 @@ public class Level implements Serializable {
 					float var18 = var6 + var17 * (float)var15 * 0.8F;
 					float var19 = var7 + var16 * (float)var15 * 0.8F;
 					float var20 = var21 + var14 * (float)var15 * 0.8F;
-					if(this.isSolidTile(var18, var19, var20)) {
+					if(this.isSolid(var18, var19, var20)) {
 						break;
 					}
 
@@ -643,10 +692,14 @@ public class Level implements Serializable {
 			return 1.0F - var22 * var22 * var22;
 		}
 	}
-	
 
 	public byte[] copyBlocks() {
 		return Arrays.copyOf(this.blocks, this.blocks.length);
+	}
+
+	public Liquid getLiquid(int var1, int var2, int var3) {
+		int var4 = this.getTile(var1, var2, var3);
+		return var4 == 0 ? Liquid.none : Tile.tiles[var4].getLiquidType();
 	}
 
 	public boolean isWater(int var1, int var2, int var3) {
@@ -657,7 +710,7 @@ public class Level implements Serializable {
 	public void setNetworkMode(boolean var1) {
 		this.networkMode = var1;
 	}
-	
+
 	public HitResult clip(Vec3 var1, Vec3 var2) {
 		if(!Float.isNaN(var1.x) && !Float.isNaN(var1.y) && !Float.isNaN(var1.z)) {
 			if(!Float.isNaN(var2.x) && !Float.isNaN(var2.y) && !Float.isNaN(var2.z)) {
@@ -669,8 +722,9 @@ public class Level implements Serializable {
 				int var8 = (int)Math.floor((double)var1.z);
 				int var9 = 20;
 
-				int var20;
-				byte var21;
+				Vec3 var20;
+				int var21;
+				byte var22;
 				do {
 					if(var9-- < 0) {
 						return null;
@@ -732,9 +786,9 @@ public class Level implements Serializable {
 					boolean var19 = false;
 					if(var13 < var14 && var13 < var15) {
 						if(var3 > var6) {
-							var21 = 4;
+							var22 = 4;
 						} else {
-							var21 = 5;
+							var22 = 5;
 						}
 
 						var1.x = var10;
@@ -742,9 +796,9 @@ public class Level implements Serializable {
 						var1.z += var18 * var13;
 					} else if(var14 < var15) {
 						if(var4 > var7) {
-							var21 = 0;
+							var22 = 0;
 						} else {
-							var21 = 1;
+							var22 = 1;
 						}
 
 						var1.x += var16 * var14;
@@ -752,9 +806,9 @@ public class Level implements Serializable {
 						var1.z += var18 * var14;
 					} else {
 						if(var5 > var8) {
-							var21 = 2;
+							var22 = 2;
 						} else {
-							var21 = 3;
+							var22 = 3;
 						}
 
 						var1.x += var16 * var15;
@@ -762,25 +816,29 @@ public class Level implements Serializable {
 						var1.z = var12;
 					}
 
-					var6 = (int)Math.floor((double)var1.x);
-					if(var21 == 5) {
+					var20 = new Vec3(var1.x, var1.y, var1.z);
+					var6 = (int)(var20.x = (float)Math.floor((double)var1.x));
+					if(var22 == 5) {
 						--var6;
+						--var20.x;
 					}
 
-					var7 = (int)Math.floor((double)var1.y);
-					if(var21 == 1) {
+					var7 = (int)(var20.y = (float)Math.floor((double)var1.y));
+					if(var22 == 1) {
 						--var7;
+						--var20.y;
 					}
 
-					var8 = (int)Math.floor((double)var1.z);
-					if(var21 == 3) {
+					var8 = (int)(var20.z = (float)Math.floor((double)var1.z));
+					if(var22 == 3) {
 						--var8;
+						--var20.z;
 					}
 
-					var20 = this.getTile(var6, var7, var8);
-				} while(var20 <= 0 || Tile.tiles[var20].getLiquidType() != Liquid.none);
+					var21 = this.getTile(var6, var7, var8);
+				} while(var21 <= 0 || Tile.tiles[var21].getLiquidType() != Liquid.none);
 
-				return new HitResult(0, var6, var7, var8, var21);
+				return new HitResult(var6, var7, var8, var22, var20);
 			} else {
 				return null;
 			}
@@ -792,8 +850,15 @@ public class Level implements Serializable {
 	public void playSound(String var1, Entity var2, float var3, float var4) {
 		if(this.rendererContext != null) {
 			Minecraft var5 = this.rendererContext;
-			if(var5.soundManager != null) {
-				var5.soundManager.playSound(var1, var2.x, var2.y, var2.z);
+			if(var5.soundPlayer == null || !var5.options.sound) {
+				return;
+			}
+
+			if(var2.distanceToSqr(var5.player) < 1024.0F) {
+				AudioInfo var6 = var5.soundEngine.getAudioInfo(var1, var3, var4);
+				if(var6 != null) {
+					var5.soundPlayer.play(var6, new EntitySoundPos(var2, var5.player));
+				}
 			}
 		}
 
@@ -802,8 +867,155 @@ public class Level implements Serializable {
 	public void playSound(String var1, float var2, float var3, float var4, float var5, float var6) {
 		if(this.rendererContext != null) {
 			Minecraft var7 = this.rendererContext;
-			if(var7.soundManager != null) {
-				var7.soundManager.playSound(var1, var2, var3, var4);
+			if(var7.soundPlayer == null || !var7.options.sound) {
+				return;
+			}
+
+			AudioInfo var8 = var7.soundEngine.getAudioInfo(var1, var5, var6);
+			if(var8 != null) {
+				var7.soundPlayer.play(var8, new LevelSoundPos(var2, var3, var4, var7.player));
+			}
+		}
+
+	}
+
+	public boolean maybeGrowTree(int var1, int var2, int var3) {
+		int var4 = this.random.nextInt(3) + 4;
+		boolean var5 = true;
+
+		int var6;
+		int var8;
+		int var9;
+		int var10;
+		for(var6 = var2; var6 <= var2 + 1 + var4; ++var6) {
+			byte var7 = 1;
+			if(var6 == var2) {
+				var7 = 0;
+			}
+
+			if(var6 >= var2 + 1 + var4 - 2) {
+				var7 = 2;
+			}
+
+			for(var8 = var1 - var7; var8 <= var1 + var7 && var5; ++var8) {
+				for(var9 = var3 - var7; var9 <= var3 + var7 && var5; ++var9) {
+					if(var8 >= 0 && var6 >= 0 && var9 >= 0 && var8 < this.width && var6 < this.depth && var9 < this.height) {
+						var10 = this.blocks[(var6 * this.height + var9) * this.width + var8] & 255;
+						if(var10 != 0) {
+							var5 = false;
+						}
+					} else {
+						var5 = false;
+					}
+				}
+			}
+		}
+
+		if(!var5) {
+			return false;
+		} else {
+			var6 = this.blocks[((var2 - 1) * this.height + var3) * this.width + var1] & 255;
+			if(var6 == Tile.grass.id && var2 < this.depth - var4 - 1) {
+				this.setTile(var1, var2 - 1, var3, Tile.dirt.id);
+
+				int var13;
+				for(var13 = var2 - 3 + var4; var13 <= var2 + var4; ++var13) {
+					var8 = var13 - (var2 + var4);
+					var9 = 1 - var8 / 2;
+
+					for(var10 = var1 - var9; var10 <= var1 + var9; ++var10) {
+						int var12 = var10 - var1;
+
+						for(var6 = var3 - var9; var6 <= var3 + var9; ++var6) {
+							int var11 = var6 - var3;
+							if(Math.abs(var12) != var9 || Math.abs(var11) != var9 || this.random.nextInt(2) != 0 && var8 != 0) {
+								this.setTile(var10, var13, var6, Tile.leaf.id);
+							}
+						}
+					}
+				}
+
+				for(var13 = 0; var13 < var4; ++var13) {
+					this.setTile(var1, var2 + var13, var3, Tile.log.id);
+				}
+
+				return true;
+			} else {
+				return false;
+			}
+		}
+	}
+
+	public Entity getPlayer() {
+		return this.player;
+	}
+
+	public void addEntity(Entity var1) {
+		BlockMap var2 = this.blockMap;
+		var2.all.add(var1);
+		var2.slot.init(var1.x, var1.y, var1.z).add(var1);
+		var1.xOld = var1.x;
+		var1.yOld = var1.y;
+		var1.zOld = var1.z;
+		var1.blockMap = var2;
+		var1.setLevel(this);
+	}
+
+	public void removeEntity(Entity var1) {
+		BlockMap var2 = this.blockMap;
+		var2.slot.init(var1.xOld, var1.yOld, var1.zOld).remove(var1);
+		var2.all.remove(var1);
+	}
+
+	public void explode(Entity var1, float var2, float var3, float var4, float var5) {
+		int var6 = (int)(var2 - var5 - 1.0F);
+		int var7 = (int)(var2 + var5 + 1.0F);
+		int var8 = (int)(var3 - var5 - 1.0F);
+		int var9 = (int)(var3 + var5 + 1.0F);
+		int var10 = (int)(var4 - var5 - 1.0F);
+		int var11 = (int)(var4 + var5 + 1.0F);
+
+		int var13;
+		float var15;
+		float var16;
+		for(int var12 = var6; var12 < var7; ++var12) {
+			for(var13 = var9 - 1; var13 >= var8; --var13) {
+				for(int var14 = var10; var14 < var11; ++var14) {
+					var15 = (float)var12 + 0.5F - var2;
+					var16 = (float)var13 + 0.5F - var3;
+					float var17 = (float)var14 + 0.5F - var4;
+					if(var12 >= 0 && var13 >= 0 && var14 >= 0 && var12 < this.width && var13 < this.depth && var14 < this.height && var15 * var15 + var16 * var16 + var17 * var17 < var5 * var5) {
+						int var25 = this.getTile(var12, var13, var14);
+						if(var25 > 0) {
+							Tile.tiles[var25].wasExploded(this, var12, var13, var14, 0.3F);
+							this.setTile(var12, var13, var14, 0);
+						}
+					}
+				}
+			}
+		}
+
+		float var10002 = (float)var6;
+		float var10003 = (float)var8;
+		float var10004 = (float)var10;
+		float var10005 = (float)var7;
+		float var10006 = (float)var9;
+		float var22 = (float)var11;
+		float var21 = var10006;
+		float var20 = var10005;
+		float var19 = var10004;
+		var4 = var10003;
+		var3 = var10002;
+		BlockMap var18 = this.blockMap;
+		var18.tmp.clear();
+		List var23 = var18.getEntities(var1, var3, var4, var19, var20, var21, var22, var18.tmp);
+
+		for(var13 = 0; var13 < var23.size(); ++var13) {
+			Entity var24 = (Entity)var23.get(var13);
+			var15 = var24.distanceTo(var1) / var5;
+			if(var15 <= 1.0F) {
+				var16 = 1.0F - var15;
+				var24.hurt(var1, (int)(var16 * 15.0F + 1.0F));
 			}
 		}
 
@@ -849,5 +1061,4 @@ public class Level implements Serializable {
 
         this.initTransient();
 	}
-
 }

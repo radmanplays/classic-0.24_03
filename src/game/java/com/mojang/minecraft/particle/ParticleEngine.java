@@ -14,6 +14,11 @@ public final class ParticleEngine {
 
 	public ParticleEngine(Level var1, Textures var2) {
 		this.textures = var2;
+		var1.particleEngine = this;
+	}
+
+	public final void addParticle(Particle var1) {
+		this.particles.add(var1);
 	}
 
 	public final void tick() {
@@ -30,7 +35,7 @@ public final class ParticleEngine {
 	public final void render(Player var1, float var2) {
 		if(this.particles.size() != 0) {
 			GL11.glEnable(GL11.GL_TEXTURE_2D);
-			int var3 = this.textures.getTextureId("/terrain.png");
+			int var3 = this.textures.loadTexture("/terrain.png");
 			GL11.glBindTexture(GL11.GL_TEXTURE_2D, var3);
 			float var12 = -((float)Math.cos((double)var1.yRot * Math.PI / 180.0D));
 			float var4 = -((float)Math.sin((double)var1.yRot * Math.PI / 180.0D));
@@ -42,7 +47,7 @@ public final class ParticleEngine {
 
 			for(int var8 = 0; var8 < this.particles.size(); ++var8) {
 				Particle var9 = (Particle)this.particles.get(var8);
-				float var10 = 0.8F * var9.getBrightness();
+				float var10 = 0.6F * var9.getBrightness(var2);
 				var7.color(var10, var10, var10);
 				var9.render(var7, var2, var12, var11, var4, var5, var6);
 			}

@@ -19,6 +19,7 @@ public class LiquidTile extends Tile {
 			this.tex = 30;
 		}
 
+		Tile.isLiquid[var1] = true;
 		this.tileId = var1;
 		this.calmTileId = var1 + 1;
 		float var4 = 0.01F;
@@ -31,7 +32,11 @@ public class LiquidTile extends Tile {
 
 	}
 
-	public final void onBlockAdded(Level var1, int var2, int var3, int var4) {
+	public final boolean isOpaque() {
+		return false;
+	}
+
+	public final void onPlace(Level var1, int var2, int var3, int var4) {
 		var1.addToTickNextTick(var2, var3, var4, this.tileId);
 	}
 
@@ -109,7 +114,7 @@ public class LiquidTile extends Tile {
 		return this.liquid == Liquid.lava ? 100.0F : var1.getBrightness(var2, var3, var4);
 	}
 
-	protected final boolean shouldRenderFace(Level var1, int var2, int var3, int var4, int var5, int var6) {
+	public final boolean shouldRenderFace(Level var1, int var2, int var3, int var4, int var5, int var6) {
 		if(var2 >= 0 && var3 >= 0 && var4 >= 0 && var2 < var1.width && var4 < var1.height) {
 			if(var5 != 1 && this.liquid == Liquid.water) {
 				return false;
@@ -157,5 +162,15 @@ public class LiquidTile extends Tile {
 
 	public final int getTickDelay() {
 		return this.liquid == Liquid.lava ? 5 : 0;
+	}
+
+	public final void wasExploded(Level var1, int var2, int var3, int var4, float var5) {
+	}
+
+	public final void spawnResources(Level var1, int var2, int var3, int var4) {
+	}
+
+	public final int getResourceCount() {
+		return 0;
 	}
 }

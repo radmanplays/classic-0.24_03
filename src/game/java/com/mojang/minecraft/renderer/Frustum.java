@@ -1,11 +1,10 @@
 package com.mojang.minecraft.renderer;
 
 import com.mojang.minecraft.phys.AABB;
-import com.mojang.util.GLAllocation;
+import org.lwjgl.opengl.GL11;
 
 import net.lax1dude.eaglercraft.internal.buffer.FloatBuffer;
-
-import org.lwjgl.opengl.GL11;
+import com.mojang.util.GLAllocation;
 
 public final class Frustum {
 	private float[][] m_Frustum = new float[6][4];
@@ -17,7 +16,7 @@ public final class Frustum {
 	private float[] modl = new float[16];
 	private float[] clip = new float[16];
 
-	public static Frustum getFrustum() {
+	public static Frustum calculateFrustum() {
 		Frustum var0 = frustum;
 		var0._proj.clear();
 		var0._modl.clear();
@@ -83,6 +82,44 @@ public final class Frustum {
 		var0[var1][1] /= var2;
 		var0[var1][2] /= var2;
 		var0[var1][3] /= var2;
+	}
+
+	public final boolean cubeFullyInFrustrum(float var1, float var2, float var3, float var4, float var5, float var6) {
+		for(int var7 = 0; var7 < 6; ++var7) {
+			if(this.m_Frustum[var7][0] * var1 + this.m_Frustum[var7][1] * var2 + this.m_Frustum[var7][2] * var3 + this.m_Frustum[var7][3] <= 0.0F) {
+				return false;
+			}
+
+			if(this.m_Frustum[var7][0] * var4 + this.m_Frustum[var7][1] * var2 + this.m_Frustum[var7][2] * var3 + this.m_Frustum[var7][3] <= 0.0F) {
+				return false;
+			}
+
+			if(this.m_Frustum[var7][0] * var1 + this.m_Frustum[var7][1] * var5 + this.m_Frustum[var7][2] * var3 + this.m_Frustum[var7][3] <= 0.0F) {
+				return false;
+			}
+
+			if(this.m_Frustum[var7][0] * var4 + this.m_Frustum[var7][1] * var5 + this.m_Frustum[var7][2] * var3 + this.m_Frustum[var7][3] <= 0.0F) {
+				return false;
+			}
+
+			if(this.m_Frustum[var7][0] * var1 + this.m_Frustum[var7][1] * var2 + this.m_Frustum[var7][2] * var6 + this.m_Frustum[var7][3] <= 0.0F) {
+				return false;
+			}
+
+			if(this.m_Frustum[var7][0] * var4 + this.m_Frustum[var7][1] * var2 + this.m_Frustum[var7][2] * var6 + this.m_Frustum[var7][3] <= 0.0F) {
+				return false;
+			}
+
+			if(this.m_Frustum[var7][0] * var1 + this.m_Frustum[var7][1] * var5 + this.m_Frustum[var7][2] * var6 + this.m_Frustum[var7][3] <= 0.0F) {
+				return false;
+			}
+
+			if(this.m_Frustum[var7][0] * var4 + this.m_Frustum[var7][1] * var5 + this.m_Frustum[var7][2] * var6 + this.m_Frustum[var7][3] <= 0.0F) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	public final boolean cubeInFrustum(float var1, float var2, float var3, float var4, float var5, float var6) {

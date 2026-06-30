@@ -5,7 +5,7 @@ public final class Coord {
 	public int y;
 	public int z;
 	public int id;
-	public int scheduledTime;
+	public int time;
 
 	public Coord(int var1, int var2, int var3, int var4) {
 		this.x = var1;
