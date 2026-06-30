@@ -35,6 +35,8 @@ public final class ParticleEngine {
 	public final void render(Player var1, float var2) {
 		if(this.particles.size() != 0) {
 			GL11.glEnable(GL11.GL_TEXTURE_2D);
+			GL11.glEnable(GL11.GL_ALPHA_TEST);
+			GL11.glAlphaFunc(GL11.GL_GREATER, 0.1f);
 			int var3 = this.textures.loadTexture("/terrain.png");
 			GL11.glBindTexture(GL11.GL_TEXTURE_2D, var3);
 			float var12 = -((float)Math.cos((double)var1.yRot * Math.PI / 180.0D));
@@ -54,6 +56,7 @@ public final class ParticleEngine {
 
 			var7.end();
 			GL11.glDisable(GL11.GL_TEXTURE_2D);
+			GL11.glDisable(GL11.GL_ALPHA_TEST);
 		}
 	}
 }

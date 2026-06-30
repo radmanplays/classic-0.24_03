@@ -55,6 +55,8 @@ public class Item extends Entity {
 
 	public void render(Textures var1, float var2) {
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
+		GL11.glEnable(GL11.GL_ALPHA_TEST);
+		GL11.glAlphaFunc(GL11.GL_GREATER, 0.1f);
 		int var4 = var1.loadTexture("/terrain.png");
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, var4);
 		float var5 = this.level.getBrightness((int)this.x, (int)this.y, (int)this.z);

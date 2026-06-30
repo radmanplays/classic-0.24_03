@@ -110,6 +110,7 @@ public final class Font {
 
 			var6.end();
 			GL11.glDisable(GL11.GL_TEXTURE_2D);
+			GL11.glDisable(GL11.GL_BLEND);
 		}
 	}
 

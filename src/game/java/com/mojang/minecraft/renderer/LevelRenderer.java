@@ -203,7 +203,10 @@ public final class LevelRenderer {
 		if(this.ib.remaining() > 0) {
 			GL11.glEnable(GL11.GL_TEXTURE_2D);
 			GL11.glBindTexture(GL11.GL_TEXTURE_2D, this.textures.loadTexture("/terrain.png"));
+			GL11.glEnable(GL11.GL_ALPHA_TEST);
+			GL11.glAlphaFunc(GL11.GL_GREATER, 0.1f);
 			GL11.glCallLists(this.ib);
+			GL11.glDisable(GL11.GL_ALPHA_TEST);
 			GL11.glDisable(GL11.GL_TEXTURE_2D);
 		}
 

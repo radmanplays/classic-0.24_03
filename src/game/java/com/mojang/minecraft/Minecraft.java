@@ -580,7 +580,10 @@ public final class Minecraft implements Runnable {
 									if(var53 > 0) {
 										GL11.glEnable(GL11.GL_TEXTURE_2D);
 										GL11.glBindTexture(GL11.GL_TEXTURE_2D, var59.textures.loadTexture("/terrain.png"));
+										GL11.glEnable(GL11.GL_ALPHA_TEST);
+										GL11.glAlphaFunc(GL11.GL_GREATER, 0.1f);
 										GL11.glCallLists(var59.ib);
+										GL11.glDisable(GL11.GL_ALPHA_TEST);
 										GL11.glDisable(GL11.GL_TEXTURE_2D);
 									}
 
@@ -637,8 +640,11 @@ public final class Minecraft implements Runnable {
 										var24 = 0.4F;
 										GL11.glScalef(var24, var24, var24);
 										GL11.glTranslatef(-0.5F, -0.5F, -0.5F);
+										GL11.glEnable(GL11.GL_ALPHA_TEST);
+										GL11.glAlphaFunc(GL11.GL_GREATER, 0.1f);
 										GL11.glBindTexture(GL11.GL_TEXTURE_2D, var97.minecraft.textures.loadTexture("/terrain.png"));
 										var97.tile.renderGuiTile(var93);
+										GL11.glDisable(GL11.GL_ALPHA_TEST);
 									} else {
 										GL11.glBindTexture(GL11.GL_TEXTURE_2D, var97.minecraft.textures.loadTexture("/char.png"));
 										GL11.glScalef(1.0F, -1.0F, -1.0F);

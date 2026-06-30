@@ -126,6 +126,8 @@ public final class Gui extends GuiComponent {
 				GL11.glRotatef(45.0F, 0.0F, 1.0F, 0.0F);
 				GL11.glTranslatef(-1.5F, 0.5F, 0.5F);
 				GL11.glScalef(-1.0F, -1.0F, -1.0F);
+				GL11.glEnable(GL11.GL_ALPHA_TEST);
+				GL11.glAlphaFunc(GL11.GL_GREATER, 0.1f);
 				int var20 = var6.loadTexture("/terrain.png");
 				GL11.glBindTexture(GL11.GL_TEXTURE_2D, var20);
 				GL11.glEnable(GL11.GL_TEXTURE_2D);
