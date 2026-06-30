@@ -92,18 +92,18 @@ public class ClientMain {
 				JSEaglercraftXOptsRoot eaglercraftOpts = (JSEaglercraftXOptsRoot)opts;
 				Minecraft minecraft = new Minecraft(854, 480, false);
 
-				String username = eaglercraftOpts.getUsername(null);
-				String server = eaglercraftOpts.getJoinServer(null);
-				if (username != null && !username.isEmpty()) {
-					minecraft.user = new User(username, "");
-					systemOut.println("Using username: " + username);
-				}
+				// String username = eaglercraftOpts.getUsername(null);
+				// String server = eaglercraftOpts.getJoinServer(null);
+				// if (username != null && !username.isEmpty()) {
+				// 	minecraft.user = new User(username, "");
+				// 	systemOut.println("Using username: " + username);
+				// }
 
-				if (server != null && !server.isEmpty()) {
-					ServerInfo serverInfo = AddressResolver.resolveURI(server);
-					minecraft.setServer(serverInfo.ip);
-					systemOut.println("Connecting to server " + serverInfo.ip);
-				}
+				// if (server != null && !server.isEmpty()) {
+				// 	ServerInfo serverInfo = AddressResolver.resolveURI(server);
+				// 	minecraft.setServer(serverInfo.ip);
+				// 	systemOut.println("Connecting to server " + serverInfo.ip);
+				// }
 
 				(new Thread(minecraft)).run();
 			}catch(ContextLostError t) {
