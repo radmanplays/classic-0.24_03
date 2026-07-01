@@ -537,11 +537,11 @@ public final class Minecraft implements Runnable {
 									var79.setupFog();
 									var64.render(var5, var83);
 									var59.renderSurroundingGround();
-//									GL11.glDisable(GL11.GL_LIGHTING);
+									GL11.glDisable(GL11.GL_LIGHTING);
 									var79.setupFog();
 									var59.renderClouds(var83);
 									var79.setupFog();
-//									GL11.glEnable(GL11.GL_LIGHTING);
+									GL11.glEnable(GL11.GL_LIGHTING);
 									if(var79.minecraft.hitResult != null) {
 //										GL11.glDisable(GL11.GL_LIGHTING);
 										GL11.glDisable(GL11.GL_ALPHA_TEST);

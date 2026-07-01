@@ -321,6 +321,8 @@ public final class LevelRenderer {
 	public final void renderClouds(float var1) {
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, this.textures.loadTexture("/clouds.png"));
+		GL11.glEnable(GL11.GL_ALPHA_TEST);
+		GL11.glAlphaFunc(GL11.GL_GREATER, 0.1F);
 		float var2 = (float)(this.level.cloudColor >> 16 & 255) / 255.0F;
 		float var3 = (float)(this.level.cloudColor >> 8 & 255) / 255.0F;
 		float var4 = (float)(this.level.cloudColor & 255) / 255.0F;
