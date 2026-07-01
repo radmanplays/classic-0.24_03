@@ -6,12 +6,12 @@ import com.mojang.minecraft.model.BaseModel;
 import com.mojang.minecraft.model.CreeperModel;
 
 public class Creeper extends Mob {
-	private static BaseModel model = new CreeperModel();
+	private static BaseModel CREEPER_MODEL = new CreeperModel();
 
 	public Creeper(Level var1, float var2, float var3, float var4) {
 		super(var1);
 		this.heightOffset = 1.62F;
-		this.model = model;
+		this.model = CREEPER_MODEL;
 		this.textureName = "/mob/creeper.png";
 		this.ai = new CreeperAI(this);
 		this.ai.defaultLookAngle = 45;
