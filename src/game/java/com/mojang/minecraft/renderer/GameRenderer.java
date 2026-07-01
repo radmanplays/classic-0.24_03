@@ -27,9 +27,9 @@ public final class GameRenderer {
 	public float fogGreen;
 	public float fogBlue;
 	
-	private static final Vec3D_112 LIGHT0_POS = (new Vec3D_112(0.20000000298023224D, 1.0D, -0.699999988079071D))
+	private static final Vec3D_112 LIGHT0_POS = (new Vec3D_112(0.0D, 1.0D, -0.5D))
 			.normalize();
-	private static final Vec3D_112 LIGHT1_POS = (new Vec3D_112(-0.20000000298023224D, 1.0D, 0.699999988079071D))
+	private static final Vec3D_112 LIGHT1_POS = (new Vec3D_112(0.0D, 1.0D, 0.5D))
 			.normalize();
 
 
